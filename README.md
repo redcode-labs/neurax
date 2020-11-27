@@ -14,7 +14,7 @@ With help of Neurax, Golang binaries can spread on local network without using a
 Diverse config options and command stagers allow rapid propagation across various wireless environments.
 ### Example code
 
-```
+```go
 package main
 import "github.com/redcode-labs/Neurax"
 
