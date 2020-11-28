@@ -39,21 +39,22 @@ func main(){
 
 ### List of config entries
 
-```
-neurax_config.stager           - Name of the command stager to use (default: random, platform-compatible)
-                                 Available stagers: certutil, powershell, bitsadmin, wget, curl
-neurax_config.port             - Port to serve on (default: random from 2222 to 9999)
-neurax_config.platform         - Platform to target, currently only Windows and Linux (default: detected automatically)
-neurax_config.path             - The path under which binary is saved on the host (default: random)
-neurax_config.file_name        - Name under which downloaded binary should be served and then saved (default: random)
-neurax_config.base64           - Encode the transferred binary in base64 (default: false)
-neurax_config.prevent_reinfect - Indicates whether a random port should be opened for knocking to prevent multiple infections of the same host (default: true)
-neurax_config.required_port    - Neurax_scan() treats host as active only when it has a specific port opened (default: none)
-neurax_config.scan_passive     - Neurax_scan() detects hosts using passive ARP monitoring (default: false)
-neurax_config.cidr             - Neurax_scan() scans this CIDR (default: local IP + "\24")
-neurax_config.threads          - Number of threads to use for neurax_scan() (default: 10)
-neurax_config.full_range       - Neurax_scan() scans all ports of target host to determine if it is active (default: from 19 to 300)
-```
+<span style="color:#b45e02">Name</span> | <span style="color:#5f1e2d">Description</span> | <span style="color:#aa5502">Default value</span>
+--- | --- | ---
+neurax_config.stager           | Name of the command stager to use | random, platform-compatible
+neurax_config.port             | Port to serve on | random from 2222 to 9999
+neurax_config.platform         | Platform to target | detected automatically
+neurax_config.path             | The path under which binary is saved on the host | random
+neurax_config.file_name        | Name under which downloaded binary should be served and then saved | random
+neurax_config.base64           | Encode the transferred binary in base64 | false
+neurax_config.prevent_reinfect | Use port-knocking to prevent multiple infections of the same host | true
+neurax_config.required_port    | Neurax_scan() treats host as active only when it has a specific port opened|none
+neurax_config.scan_passive     | Neurax_scan() detects hosts using passive ARP traffic monitoring | false
+neurax_config.scan_timeout     | neurax_scan() sets this value as timeout for scanned port in each thread | 2 seconds
+neurax_config.read_arp_cache   | neurax_scan() scans first the hosts found in local ARP cache. Works only with active scan | false
+neurax_config.cidr             | Neurax_scan() scans this CIDR | local IP + "\24"
+neurax_config.threads          | Number of threads to use for neurax_scan() | 10
+neurax_config.full_range       | Neurax_scan() scans all ports of target host to determine if it is active | from 19 to 300
 
 ### Finding new targets
 Function `neurax_scan(c chan string)` enables detection of active hosts on local network.

