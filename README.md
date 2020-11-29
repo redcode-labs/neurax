@@ -50,7 +50,7 @@ NeuraxConfig.platform         | Platform to target | detected automatically
 NeuraxConfig.path             | The path under which binary is saved on the host | random
 NeuraxConfig.file_name        | Name under which downloaded binary should be served and then saved | random
 NeuraxConfig.base64           | Encode the transferred binary in base64 | false
-NeuraxConfig.prevent_reinfect | Use port-knocking to prevent multiple infections of the same host | true
+NeuraxConfig.comm_port        | Port that is used by binaries to communicate with each other | random
 NeuraxConfig.required_port    | NeuraxScan() treats host as active only when it has a specific port opened|none
 NeuraxConfig.scan_passive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | false
 NeuraxConfig.scan_timeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | 2 seconds
