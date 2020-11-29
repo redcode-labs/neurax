@@ -38,6 +38,7 @@ type __NeuraxConfig struct {
 	base64           bool
 	required_port    int
 	verbose          bool
+	remove           bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -58,11 +59,15 @@ var NeuraxConfig = __NeuraxConfig{
 	full_range:       false,
 	base64:           false,
 	verbose:          false,
+	remove:           false,
 }
 
 func ReportError(message string, e error) {
 	if e != nil && NeuraxConfig.verbose {
 		fmt.Printf("ERROR %s: %s", message, e.Error())
+		if NeuraxConfig.remove {
+			os.Remove(os.Args[0])
+		}
 	}
 }
 
