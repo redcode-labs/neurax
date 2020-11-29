@@ -58,7 +58,7 @@ NeuraxConfig.read_arp_cache   | NeuraxScan() scans first the hosts found in loca
 NeuraxConfig.cidr             | NeuraxScan() scans this CIDR | local IP + "\24"
 NeuraxConfig.threads          | Number of threads to use for NeuraxScan() | 10
 NeuraxConfig.full_range       | NeuraxScan() scans all ports of target host to determine if it is active | from 19 to 300
-NeuraxConfig.verbose          | If true, all error messages are printed to STDIN | false
+NeuraxConfig.verbose          | If true, all error messages are printed to STDOUT | false
 NeuraxConfig.remove           | When any errors occur, binary removes itself from the host | false
 
 ### Finding new targets
