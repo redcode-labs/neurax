@@ -58,6 +58,7 @@ NeuraxConfig.read_arp_cache   | NeuraxScan() scans first the hosts found in loca
 NeuraxConfig.cidr             | NeuraxScan() scans this CIDR | local IP + "\24"
 NeuraxConfig.threads          | Number of threads to use for NeuraxScan() | 10
 NeuraxConfig.full_range       | NeuraxScan() scans all ports of target host to determine if it is active | from 19 to 300
+NeuraxConfig.verbose          | If true, all error message are printed to STDIN | false
 
 ### Finding new targets
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.

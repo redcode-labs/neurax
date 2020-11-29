@@ -37,6 +37,7 @@ type __NeuraxConfig struct {
 	full_range       bool
 	base64           bool
 	required_port    int
+	verbose          bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -56,6 +57,13 @@ var NeuraxConfig = __NeuraxConfig{
 	threads:          10,
 	full_range:       false,
 	base64:           false,
+	verbose:          false,
+}
+
+func ReportError(message string, e error) {
+	if e != nil && NeuraxConfig.verbose {
+		fmt.Printf("ERROR %s: %s", message, e.Error())
+	}
 }
 
 func NeuraxStager() string {
@@ -153,10 +161,10 @@ func NeuraxScan(c chan string) {
 		var snapshot_len int32 = 1024
 		var timeout time.Duration = 500000 * time.Second
 		devices, err := pcap.FindAllDevs()
-		coldfire.ExitOnError(err)
+		ReportError("Cannor obtain networkinterfaces", err)
 		for _, device := range devices {
 			handler, err := pcap.OpenLive(device.Name, snapshot_len, false, timeout)
-			coldfire.ExitOnError(err)
+			ReportError("Cannot open device", err)
 			handler.SetBPFFilter("arp")
 			defer handler.Close()
 			packetSource := gopacket.NewPacketSource(handler, handler.LinkType())
