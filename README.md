@@ -51,13 +51,13 @@ NeuraxConfig.path             | The path under which binary is saved on the host
 NeuraxConfig.file_name        | Name under which downloaded binary should be served and then saved | random
 NeuraxConfig.base64           | Encode the transferred binary in base64 | false
 NeuraxConfig.prevent_reinfect | Use port-knocking to prevent multiple infections of the same host | true
-NeuraxConfig.required_port    | Neurax_scan() treats host as active only when it has a specific port opened|none
-NeuraxConfig.scan_passive     | Neurax_scan() detects hosts using passive ARP traffic monitoring | false
+NeuraxConfig.required_port    | NeuraxScan() treats host as active only when it has a specific port opened|none
+NeuraxConfig.scan_passive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | false
 NeuraxConfig.scan_timeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | 2 seconds
 NeuraxConfig.read_arp_cache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | false
-NeuraxConfig.cidr             | Neurax_scan() scans this CIDR | local IP + "\24"
+NeuraxConfig.cidr             | NeuraxScan() scans this CIDR | local IP + "\24"
 NeuraxConfig.threads          | Number of threads to use for NeuraxScan() | 10
-NeuraxConfig.full_range       | Neurax_scan() scans all ports of target host to determine if it is active | from 19 to 300
+NeuraxConfig.full_range       | NeuraxScan() scans all ports of target host to determine if it is active | from 19 to 300
 
 ### Finding new targets
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.
