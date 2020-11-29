@@ -65,7 +65,7 @@ NeuraxConfig.remove           | When any errors occur, binary removes itself fro
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.
 It accepts a channel of type string as it's only argument and should be launched as a goroutine.
 Any scanned host will be sent through that channel as soon as it was classified as active.
-Host is treated as active when it has at least 1 open port + fullfils conditions specified within `NeuraxConfig`.
+Host is treated as active when it has at least 1 open port, is not already infected + fullfils conditions specified within `NeuraxConfig`.
 
 ## Artwork credits
 
