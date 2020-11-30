@@ -9,7 +9,8 @@
 <p align="center"> A library that aids in creation of self-spreading software</p>
 
 ## Requirements
-`go get -u https://github.com/redcode-labs/Coldfire`
+`go get -u github.com/redcode-labs/Coldfire`
+`go get -u github.com/yelinaung/go-haikunator`
 
 ## Usage
 With help of Neurax, Golang binaries can spread on local network without using any external servers.

