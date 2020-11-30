@@ -10,6 +10,7 @@
 
 ## Requirements
 `go get -u github.com/redcode-labs/Coldfire`
+
 `go get -u github.com/yelinaung/go-haikunator`
 
 ## Usage
