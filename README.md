@@ -88,11 +88,29 @@ It listens on port number specified in `.comm_port` using protocol defined in `.
 Field `.comm_proto` can be set either to `"tcp"` or `"udp"`.
 Commands that are sent to the port used for communication are executed in a blind manner - their output isn't saved anywhere.
 
-Commands sent in form of strings can be prepended with two optional preambles:
-* `x    <command>`  - received command is executed by the binary and then forwarded to each infected node.
-* `nx   <command>`  - command is only forwarded to other nodes - the first host that received it doesn't execute it.
+An optional preamble can be added before the command string.
 
-By default, raw command sent without any preambles is executed by a single node that the command is addressed for.
+Format: `:<preamble_letters> <command>` 
+
+Example command with preamble might look like this: `:ar echo "pwned"`
+
+Following letters can be specified inside preamble:
+* `a`  - received command is forwarded to each infected node, but the node that first received the command will not execute it
+* `x`  - received command will be executed even if `a` is specified
+* `r`  - after receiving the command, binary removes itself from infected host and quits execution
+
+By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
+
+It is also important to note that the instruction preamble is removed from command rigth after the first node receives it.
+
+Example:
+
+```go
+ (1) [TCP_client]    ":ar whoami" -----> [InfectedHost1] 
+ (2) [InfectedHost1] "whoami"     -----> [InfectedHostN]
+ (3) [InfectedHost1] removes itself after command was sent to all infected nodes in (2)
+     because "r" was specified in preamble. "x" was not specified, so "whoami" was not executed by [InfectedHost1] 
+```
 
 ## Support this tool
 If you like this project and want to see it grow, please consider making a small donation :>
