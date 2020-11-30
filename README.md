@@ -62,6 +62,7 @@ NeuraxConfig.read_arp_cache   | NeuraxScan() scans first the hosts found in loca
 NeuraxConfig.cidr             | NeuraxScan() scans this CIDR | local IP + "\24"
 NeuraxConfig.threads          | Number of threads to use for NeuraxScan() | 10
 NeuraxConfig.full_range       | NeuraxScan() scans all ports of target host to determine if it is active | from 19 to 300
+NeuraxConfig.scan_interval    | Time interval to sleep before scanning whole subnet again | 2 minutes
 NeuraxConfig.verbose          | If true, all error messages are printed to STDOUT | false
 NeuraxConfig.remove           | When any errors occur, binary removes itself from the host | false
 
@@ -70,6 +71,8 @@ Function `NeuraxScan(c chan string)` enables detection of active hosts on local 
 It accepts a channel of type string as it's only argument and should be launched as a goroutine.
 Any scanned host will be sent through that channel as soon as it was classified as active.
 Host is treated as active when it has at least 1 open port, is not already infected + fullfils conditions specified within `NeuraxConfig`.
+
+`NeuraxScan()` runs as infinite loop - it scans whole subnet specified by `.cidr` config entry and when every host is scanned, function sleeps for an interval given in `.scan_interval`.
 
 ### Disks infection
   Neurax binary doesn't have to copy itself using wireless means.

