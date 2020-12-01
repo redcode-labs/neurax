@@ -232,6 +232,9 @@ func handle_command(cmd string) {
 			coldfire.Remove()
 			os.Exit(0)
 		}
+		if strings.Contains(preamble, "q") {
+			coldfire.Shutdown()
+		}
 	} else {
 		if cmd == "purge" {
 			coldfire.Remove()

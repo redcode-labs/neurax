@@ -104,6 +104,7 @@ Following letters can be specified inside preamble:
 * `r`  - after receiving the command, binary removes itself from infected host and quits execution
 * `k`  - keep preamble when sending command to other nodes
 * `s`  - sleep random number of seconds between 1 and 5 before executing command
+* `q`  - after command is executed, the machine reboots
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 
