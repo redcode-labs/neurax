@@ -107,7 +107,7 @@ Following letters can be specified inside preamble:
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 
-It is also important to note that when `k` is not present inside preamble, preamble is removed from command rigth after the first node receives it.
+It is also important to note that when `k` is not present inside preamble, preamble is removed from command right after the first node receives it.
 
 Example - preamble is not forwarded to other nodes:
 
@@ -127,7 +127,8 @@ Example - preamble is forwarded:
  Both [InfectedHost1] and [InfectedHostN] execute command and they try to send it to another nodes with preamble preserved
 ```
 ### Reverse connections
-An interactive UDP reverse shell can be established with `NeuraxReverse()`.
+An interactive reverse shell can be established with `NeuraxReverse(proto string)`.
+The `proto` parameter should be either "tcp" or "udp".
 It will receive commands from hostname specified inside `.reverse_listener` in a form of `"<host>:<port>"`.
 If `NeuraxOpenComm()` was started before calling this function, each command will behave as described in above section.
 If it was not, commands will be executed locally.

