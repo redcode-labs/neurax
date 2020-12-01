@@ -61,6 +61,7 @@ NeuraxConfig.reverse_listener | Contains `"<host>:<port>"` of remote reverse she
 NeuraxConfig.required_port    | NeuraxScan() treats host as active only when it has a specific port opened| `none`
 NeuraxConfig.scan_passive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | `false`
 NeuraxConfig.scan_timeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | `2 seconds`
+NeuraxConfig.scan_all         | NeuraxScan() captures packets on all found devices | `current wireless`
 NeuraxConfig.read_arp_cache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | `false`
 NeuraxConfig.cidr             | NeuraxScan() scans this CIDR | `local IP + "\24"`
 NeuraxConfig.threads          | Number of threads to use for NeuraxScan() | `10`

