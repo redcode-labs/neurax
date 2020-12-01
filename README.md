@@ -50,7 +50,7 @@ func main(){
 <span style="color:#b45e02">Name</span> | <span style="color:#5f1e2d">Description</span> | <span style="color:#aa5502">Default value</span>
 --- | --- | ---
 NeuraxConfig.stager           | Name of the command stager to use | random, platform-compatible
-NeuraxConfig.port             | Port to serve on | random from 2222 to 9999
+NeuraxConfig.port             | Port to serve on | 6741
 NeuraxConfig.platform         | Platform to target | detected automatically
 NeuraxConfig.path             | The path under which binary is saved on the host | random
 NeuraxConfig.file_name        | Name under which downloaded binary should be served and then saved | random

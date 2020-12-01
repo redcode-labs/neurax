@@ -47,7 +47,7 @@ type __NeuraxConfig struct {
 
 var NeuraxConfig = __NeuraxConfig{
 	stager:         "random",
-	port:           coldfire.RandomInt(2222, 9999),
+	port:           6741, //coldfire.RandomInt(2222, 9999),
 	comm_port:      7777,
 	comm_proto:     "udp",
 	required_port:  0,
