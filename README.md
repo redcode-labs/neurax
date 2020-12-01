@@ -49,27 +49,27 @@ func main(){
 
 <span style="color:#b45e02">Name</span> | <span style="color:#5f1e2d">Description</span> | <span style="color:#aa5502">Default value</span>
 --- | --- | ---
-NeuraxConfig.stager           | Name of the command stager to use | random, platform-compatible
-NeuraxConfig.port             | Port to serve on | 6741
-NeuraxConfig.platform         | Platform to target | detected automatically
-NeuraxConfig.path             | The path under which binary is saved on the host | random
-NeuraxConfig.file_name        | Name under which downloaded binary should be served and then saved | random
-NeuraxConfig.base64           | Encode the transferred binary in base64 | false
-NeuraxConfig.comm_port        | Port that is used by binaries to communicate with each other | 7777
-NeuraxConfig.comm_proto       | Protocol for communication between nodes | "udp"
-NeuraxConfig.reverse_listener | Contains "<host>:<port>" of remote reverse shell handler | not specified
-NeuraxConfig.required_port    | NeuraxScan() treats host as active only when it has a specific port opened|none
-NeuraxConfig.scan_passive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | false
-NeuraxConfig.scan_timeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | 2 seconds
-NeuraxConfig.read_arp_cache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | false
-NeuraxConfig.cidr             | NeuraxScan() scans this CIDR | local IP + "\24"
-NeuraxConfig.threads          | Number of threads to use for NeuraxScan() | 10
-NeuraxConfig.full_range       | NeuraxScan() scans all ports of target host to determine if it is active | from 19 to 300
-NeuraxConfig.scan_interval    | Time interval to sleep before scanning whole subnet again | "2m" 
-NeuraxConfig.verbose          | If true, all error messages are printed to STDOUT | false
-NeuraxConfig.remove           | When any errors occur, binary removes itself from the host | false
-NeuraxConfig.prevent_reexec   | If true, when any command matches with those that were already received before, it is not executed | true
-NeuraxConfig.exfil_addr       | Address to which output of command ise sent when `'v'` preamble is present. | none
+NeuraxConfig.stager           | Name of the command stager to use | `random, platform-compatible`
+NeuraxConfig.port             | Port to serve on | `6741`
+NeuraxConfig.platform         | Platform to target | `detected automatically`
+NeuraxConfig.path             | The path under which binary is saved on the host | `random`
+NeuraxConfig.file_name        | Name under which downloaded binary should be served and then saved | `random`
+NeuraxConfig.base64           | Encode the transferred binary in base64 | `false`
+NeuraxConfig.comm_port        | Port that is used by binaries to communicate with each other | `7777`
+NeuraxConfig.comm_proto       | Protocol for communication between nodes | `"udp"`
+NeuraxConfig.reverse_listener | Contains `"<host>:<port>"` of remote reverse shell handler | `not specified`
+NeuraxConfig.required_port    | NeuraxScan() treats host as active only when it has a specific port opened| `none`
+NeuraxConfig.scan_passive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | `false`
+NeuraxConfig.scan_timeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | `2 seconds`
+NeuraxConfig.read_arp_cache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | `false`
+NeuraxConfig.cidr             | NeuraxScan() scans this CIDR | `local IP + "\24"`
+NeuraxConfig.threads          | Number of threads to use for NeuraxScan() | `10`
+NeuraxConfig.full_range       | NeuraxScan() scans all ports of target host to determine if it is active | `from 19 to 300`
+NeuraxConfig.scan_interval    | Time interval to sleep before scanning whole subnet again | `"2m"` 
+NeuraxConfig.verbose          | If true, all error messages are printed to STDOUT | `false`
+NeuraxConfig.remove           | When any errors occur, binary removes itself from the host | `false`
+NeuraxConfig.prevent_reexec   | If true, when any command matches with those that were already received before, it is not executed | `true`
+NeuraxConfig.exfil_addr       | Address to which output of command ise sent when `'v'` preamble is present. | `none`
 
 ### Finding new targets
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.
@@ -117,23 +117,27 @@ By default, raw command sent without any preambles is executed by a single node 
 
 It is also important to note that when `k` is not present inside preamble, preamble is removed from command right after the first node receives it.
 
-Example - preamble is not forwarded to other nodes:
+#### Example 1 - preamble is not forwarded to other nodes:
 
 ```go
  (1) [TCP_client]    ":ar whoami" -----> [InfectedHost1] 
  (2) [InfectedHost1] "whoami"     -----> [InfectedHostN]
- (3) [InfectedHost1] removes itself after command was sent to all infected nodes in (2)
+ 
+    [InfectedHost1] removes itself after command was sent to all infected nodes in (2)
      because "r" was specified in preamble. "x" was not specified, so "whoami" was not executed by [InfectedHost1] 
 ```
-Example - preamble is forwarded:
+#### Example 2 - preamble is forwarded:
 
 ```go
  (1) [TCP_client]    ":akxr whoami"  -----> [InfectedHost1] 
  (2) [InfectedHost1] ":akxr whoami"  -----> [InfectedHostN]
- (n) [InfectedHostN] ":axkr whoami"  -----> ...
- ...
+ (n) [InfectedHostN] ":axkr whoami"  -----> ...............
+ .................................   -----> ...............
+
  Both [InfectedHost1] and [InfectedHostN] execute command and they try to send it to another nodes with preamble preserved
 ```
+
+
 ### Reverse connections
 An interactive reverse shell can be established with `NeuraxReverse(proto string)`.
 The `proto` parameter should be either "tcp" or "udp".
