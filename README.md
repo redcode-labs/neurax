@@ -69,6 +69,7 @@ NeuraxConfig.scan_interval    | Time interval to sleep before scanning whole sub
 NeuraxConfig.verbose          | If true, all error messages are printed to STDOUT | false
 NeuraxConfig.remove           | When any errors occur, binary removes itself from the host | false
 NeuraxConfig.prevent_reexec   | If true, when any command matches with those that were already received before, it is not executed | true
+NeuraxConfig.exfil_addr       | Address to which output of command ise sent when `'v'` preamble is present. | none
 
 ### Finding new targets
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.
@@ -107,6 +108,7 @@ Following letters can be specified inside preamble:
 * `s`  - sleep random number of seconds between 1 and 5 before executing command
 * `q`  - after command is executed, the machine reboots
 * `o`  - command is sent to a single, random node. `a` must be specified
+* `v`  - output of executed command is sent to an address specified under `.exfil_addr`
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 
