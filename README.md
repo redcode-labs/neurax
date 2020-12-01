@@ -6,7 +6,7 @@
   </a>
 </p>
 
-<p align="center"> A library that aids in creation of self-spreading software</p>
+<p align="center"> A framework that aids in creation of self-spreading software</p>
 
 ## Requirements
 `go get -u github.com/redcode-labs/Coldfire`
