@@ -111,6 +111,7 @@ Following letters can be specified inside preamble:
 * `v`  - output of executed command is sent to an address specified under `.exfil_addr`
 * `m`  - mechanism that prevents re-execution of commands becomes disabled just for this specific command 
 * `l`  - command is executed in infinite loop
+* `e`  - command is executed only if the node has elevated privilleges
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 

