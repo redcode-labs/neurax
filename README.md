@@ -83,6 +83,9 @@ Host is treated as active when it has at least 1 open port, is not already infec
   Copied binary is not executed, but simply resides in it's destination waiting to be run.
   `NeuraxDisks()` returns an `error` if list of disks cannot be obtained or copying to any destination was impossible.
 
+Another function, `NeuraxZIP(num_files int) err` allows to create a randomly named .zip archive containing current binary.
+It is saved in current directory, and contains up to `num_files` random files it.
+
 ### Synchronized command execution
 Function `NeuraxOpenComm()` (launched as goroutine) allows binary to receive and execute commands.
 It listens on port number specified in `.comm_port` using protocol defined in `.comm_proto`.
