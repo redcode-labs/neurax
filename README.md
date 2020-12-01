@@ -106,6 +106,7 @@ Following letters can be specified inside preamble:
 * `k`  - keep preamble when sending command to other nodes
 * `s`  - sleep random number of seconds between 1 and 5 before executing command
 * `q`  - after command is executed, the machine reboots
+* `o`  - command is sent to a single, random node. `a` must be specified
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 
