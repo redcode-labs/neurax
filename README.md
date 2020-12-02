@@ -21,7 +21,7 @@ Diverse config options and command stagers allow rapid propagation across variou
 
 ```go
 package main
-import "github.com/redcode-labs/Neurax"
+import . "github.com/redcode-labs/Neurax"
 
 func main(){
 
