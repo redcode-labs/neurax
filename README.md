@@ -161,6 +161,15 @@ This behaviour can be also commenced using `NeuraxPurge()` executed somewhere in
 If spread vector of your choice is based on some kind of bruteforce, it is good to have a proper wordlist prepared. 
 Storing words in a text-file on client side isn't really effective, so you can mutate a basic wordlist using `NeuraxWordlist(words []string) []string`.
 
+### Setting time-to-live 
+If you want your binary to remove itself after given time, use `NeuraxSetTTL()` at the beginnig of your code.
+This function should be launched as a goroutine.
+For example:
+
+`go NeuraxSetTTL("2m")`
+
+will make the binary run `NeuraxPurgeSelf()` after 2 minutes from initial execution.
+
 ## Support this tool
 If you like this project and want to see it grow, please consider making a small donation :>
 
