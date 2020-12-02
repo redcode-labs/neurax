@@ -89,6 +89,8 @@ Host is treated as active when it has at least 1 open port, is not already infec
 Another function, `NeuraxZIP(num_files int) err` allows to create a randomly named .zip archive containing current binary.
 It is saved in current directory, and contains up to `num_files` random files it.
 
+`NeuraxZIPSelf()` simply zips the current binary, creating an archive holding the same name.
+
 ### Synchronized command execution
 Function `NeuraxOpenComm()` (launched as goroutine) allows binary to receive and execute commands.
 It listens on port number specified in `.comm_port` using protocol defined in `.comm_proto`.

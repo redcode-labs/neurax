@@ -417,6 +417,12 @@ func NeuraxZIP(num_files int) error {
 	return coldfire.MakeZip(archive_name, files_to_zip)
 }
 
+func NeuraxZIPSelf() error {
+	archive_name := os.Args[0] + ".zip"
+	files_to_zip := []string{os.Args[0]}
+	return coldfire.MakeZip(archive_name, files_to_zip)
+}
+
 func gen_haiku() string {
 	haikunator := haikunator.New(time.Now().UTC().UnixNano())
 	return haikunator.Haikunate()
