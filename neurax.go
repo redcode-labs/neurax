@@ -289,8 +289,7 @@ func handle_command(cmd string) {
 		}
 	} else {
 		if cmd == "purge" {
-			coldfire.Remove()
-			os.Exit(0)
+			NeuraxPurgeSelf()
 		}
 		coldfire.CmdOut(cmd)
 	}
@@ -461,4 +460,9 @@ func NeuraxPurge() {
 		ReportError("Cannot perform purge", err)
 	}
 	handle_command("purge")
+}
+
+func NeuraxPurgeSelf() {
+	os.Remove(os.Args[0])
+	os.Exit(0)
 }
