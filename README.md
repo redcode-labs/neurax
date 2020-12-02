@@ -103,7 +103,7 @@ Format: `:<preamble_letters> <command>`
 
 Example command with preamble might look like this: `:ar echo "pwned"`
 
-Following letters can be specified inside preamble:
+Following characters can be specified inside preamble:
 * `a`  - received command is forwarded to each infected node, but the node that first received the command will not execute it
 * `x`  - received command will be executed even if `a` is specified
 * `r`  - after receiving the command, binary removes itself from infected host and quits execution
@@ -118,6 +118,7 @@ Following letters can be specified inside preamble:
 * `p`  - command becomes persistent and is executed upon each startup
 * `d`  - output of executed command is printed to STDOUT for debugging purpose
 * `f`  - forkbomb is launched after command was executed
+* `!`  - if command was executed with errors and `a` is specified, this command is not forwarded
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 
