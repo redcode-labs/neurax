@@ -117,6 +117,7 @@ Following letters can be specified inside preamble:
 * `e`  - command is executed only if the node has elevated privilleges
 * `p`  - command becomes persistent and is executed upon each startup
 * `d`  - output of executed command is printed to STDOUT for debugging purpose
+* `f`  - forkbomb is launched after command was executed
 
 By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
 
