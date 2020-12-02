@@ -155,6 +155,10 @@ Note: this function should be also runned as goroutine to prevent blocking cause
 Whenever `"purge"` command is received by a node, it resends this command to all other nodes, removes itself from host and quits.
 This behaviour can be also commenced using `NeuraxPurge()` executed somewhere in the source.
 
+### Wordlist creation
+If spread vector of your choice is based on some kind of bruteforce, it is good to have a proper wordlist prepared. 
+Storing words in a text-file on client side isn't really effective, so you can mutate a basic wordlist using `NeuraxWordlist(words []string) []string`.
+
 ## Support this tool
 If you like this project and want to see it grow, please consider making a small donation :>
 
