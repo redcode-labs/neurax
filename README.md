@@ -71,6 +71,7 @@ NeuraxConfig.Verbose          | If true, all error messages are printed to STDOU
 NeuraxConfig.Remove           | When any errors occur, binary removes itself from the host | `false`
 NeuraxConfig.PreventReexec   | If true, when any command matches with those that were already received before, it is not executed | `true`
 NeuraxConfig.ExfilAddr       | Address to which output of command is sent when `'v'` preamble is present. | `none`
+NeuraxCOnfig.ExpandWordlist  | NeuraxWordlist() performs non-standard transformations on input words | false
 
 ### Finding new targets
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.
