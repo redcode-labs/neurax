@@ -63,6 +63,7 @@ NeuraxConfig.RequiredPort    | NeuraxScan() treats host as active only when it h
 NeuraxConfig.ScanPassive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | `false`
 NeuraxConfig.ScanTimeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | `2 seconds`
 NeuraxConfig.ScanAll         | NeuraxScan() captures packets on all found devices | `current wireless`
+NeuraxConfig.ScanFirst       | A slice containing IP addresses to scan first | `[]string{}`
 NeuraxConfig.ReadArpCache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | `false`
 NeuraxConfig.Cidr             | NeuraxScan() scans this CIDR | `local IP + "\24"`
 NeuraxConfig.Threads          | Number of threads to use for NeuraxScan() | `10`

