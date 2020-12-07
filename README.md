@@ -172,6 +172,9 @@ For example:
 `go NeuraxSetTTL("2m")`
 
 will make the binary run `NeuraxPurgeSelf()` after 2 minutes from initial execution.
+### Using multipla stagers at once
+If you would like to chain all stagers available for given platform, set `.Stager` to `"chain"`.
+
 
 ## Support this tool
 If you like this project and want to see it grow, please consider making a small donation :>

