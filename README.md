@@ -58,6 +58,7 @@ NeuraxConfig.Base64           | Encode the transferred binary in base64 | `false
 NeuraxConfig.CommPort        | Port that is used by binaries to communicate with each other | `7777`
 NeuraxConfig.CommProto       | Protocol for communication between nodes | `"udp"`
 NeuraxConfig.ReverseListener | Contains `"<host>:<port>"` of remote reverse shell handler | `not specified`
+NeuraxConfig.ReverseProto    | Protocol to use for reverse connection | `"upd"`
 NeuraxConfig.RequiredPort    | NeuraxScan() treats host as active only when it has a specific port opened| `none`
 NeuraxConfig.ScanPassive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | `false`
 NeuraxConfig.ScanTimeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | `2 seconds`
@@ -147,9 +148,9 @@ It is also important to note that when `k` is not present inside preamble, pream
 
 
 ### Reverse connections
-An interactive reverse shell can be established with `NeuraxReverse(proto string)`.
-The `proto` parameter should be either "tcp" or "udp".
+An interactive reverse shell can be established with `NeuraxReverse()`.
 It will receive commands from hostname specified inside `.ReverseListener` in a form of `"<host>:<port>"`.
+Protocol that is used is defined under `.ReverseProto`
 If `NeuraxOpenComm()` was started before calling this function, each command will behave as described in above section.
 If it was not, commands will be executed locally.
 

