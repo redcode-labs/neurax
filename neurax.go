@@ -229,8 +229,10 @@ func IsHostActive(target string) bool {
 		last = 65535
 	}
 	if NeuraxConfig.ScanFast {
-		NeuraxConfig.ScanTimeout = 3
+		NeuraxConfig.ScanTimeout = 2
 		NeuraxConfig.Threads = 20
+		first = 21
+		last = 81
 	}
 	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanTimeout)*time.Second, NeuraxConfig.Threads)
 	opened_ports := ps.GetOpenedPort(first, last)
