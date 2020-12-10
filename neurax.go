@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -686,4 +687,12 @@ func NeuraxSetTTL(interval string) {
 			NeuraxPurgeSelf()
 		}
 	}
+}
+
+func NeuraxMigrate(path string) error {
+	current_path, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	if strings.Contains(current_path, path) {
+		return nil
+	}
+	return coldfire.CopyFile(os.Args[0], path)
 }

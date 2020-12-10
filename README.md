@@ -175,8 +175,13 @@ For example:
 `go NeuraxSetTTL("2m")`
 
 will make the binary run `NeuraxPurgeSelf()` after 2 minutes from initial execution.
+
 ### Using multipla stagers at once
 If you would like to chain all stagers available for given platform, set `.Stager` to `"chain"`.
+
+### Moving the dropped binary
+If you need to copy the binary after initial execution, use `NeuraxMigrate(path string)`.
+It will copy the binary under `path`, remove current binary and execute newly migrated one.
 
 
 ## Support this tool
