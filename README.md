@@ -51,6 +51,7 @@ func main(){
 --- | --- | ---
 NeuraxConfig.Stager           | Name of the command stager to use | `random, platform-compatible`
 NeuraxConfig.StagerSudo       | If true, Linux cmd stagers are executed with elevated privilleges | `false`
+NeuraxConfig.StagerRetry      | Number of times to re-execute the command stager | `0`
 NeuraxConfig.Port             | Port to serve on | `6741`
 NeuraxConfig.Platform         | Platform to target | `detected automatically`
 NeuraxConfig.Path             | The path under which binary is saved on the host | `random`
