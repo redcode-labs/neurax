@@ -60,15 +60,15 @@ NeuraxConfig.CommPort        | Port that is used by binaries to communicate with
 NeuraxConfig.CommProto       | Protocol for communication between nodes | `"udp"`
 NeuraxConfig.ReverseListener | Contains `"<host>:<port>"` of remote reverse shell handler | `not specified`
 NeuraxConfig.ReverseProto    | Protocol to use for reverse connection | `"upd"`
-NeuraxConfig.RequiredPort    | NeuraxScan() treats host as active only when it has a specific port opened| `none`
+NeuraxConfig.ScanRequiredPort    | NeuraxScan() treats host as active only when it has a specific port opened| `none`
 NeuraxConfig.ScanPassive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | `false`
 NeuraxConfig.ScanTimeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | `2 seconds`
 NeuraxConfig.ScanAll         | NeuraxScan() captures packets on all found devices | `current wireless`
 NeuraxConfig.ScanFirst       | A slice containing IP addresses to scan first | `[]string{}`
-NeuraxConfig.ReadArpCache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | `false`
-NeuraxConfig.Cidr             | NeuraxScan() scans this CIDR | `local IP + "\24"`
-NeuraxConfig.Threads          | Number of threads to use for NeuraxScan() | `10`
-NeuraxConfig.FullRange       | NeuraxScan() scans all ports of target host to determine if it is active | `from 19 to 300`
+NeuraxConfig.ScanArpCache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | `false`
+NeuraxConfig.ScanCidr             | NeuraxScan() scans this CIDR | `local IP + "\24"`
+NeuraxConfig.ScanThreads          | Number of threads to use for NeuraxScan() | `10`
+NeuraxConfig.ScanFullRange       | NeuraxScan() scans all ports of target host to determine if it is active | `from 19 to 300`
 NeuraxConfig.ScanInterval    | Time interval to sleep before scanning whole subnet again | `"2m"` 
 NeuraxConfig.Verbose          | If true, all error messages are printed to STDOUT | `false`
 NeuraxConfig.Remove           | When any errors occur, binary removes itself from the host | `false`

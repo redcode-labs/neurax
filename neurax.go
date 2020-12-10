@@ -84,11 +84,11 @@ type __NeuraxConfig struct {
 	ScanAll          bool
 	ScanFast         bool
 	ScanFirst        []string
-	ReadArpCache     bool
-	Threads          int
-	FullRange        bool
+	ScanArpCache     bool
+	ScanThreads      int
+	ScanFullRange    bool
 	Base64           bool
-	RequiredPort     int
+	ScanRequiredPort int
 	Verbose          bool
 	Remove           bool
 	ScanInterval     string
@@ -108,7 +108,7 @@ var NeuraxConfig = __NeuraxConfig{
 	Port:             6741, //coldfire.RandomInt(2222, 9999),
 	CommPort:         7777,
 	CommProto:        "udp",
-	RequiredPort:     0,
+	ScanRequiredPort: 0,
 	LocalIp:          coldfire.GetLocalIp(),
 	Path:             "random",
 	FileName:         "random",
@@ -119,9 +119,9 @@ var NeuraxConfig = __NeuraxConfig{
 	ScanAll:          false,
 	ScanFast:         false,
 	ScanFirst:        []string{},
-	ReadArpCache:     false,
-	Threads:          10,
-	FullRange:        false,
+	ScanArpCache:     false,
+	ScanThreads:      10,
+	ScanFullRange:    false,
 	Base64:           false,
 	Verbose:          false,
 	Remove:           false,
@@ -239,22 +239,22 @@ func NeuraxServer() {
 func IsHostActive(target string) bool {
 	first := 19
 	last := 300
-	if NeuraxConfig.FullRange {
+	if NeuraxConfig.ScanFullRange {
 		last = 65535
 	}
 	if NeuraxConfig.ScanFast {
 		NeuraxConfig.ScanTimeout = 2
-		NeuraxConfig.Threads = 20
+		NeuraxConfig.ScanThreads = 20
 		first = 21
 		last = 81
 	}
-	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanTimeout)*time.Second, NeuraxConfig.Threads)
+	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanTimeout)*time.Second, NeuraxConfig.ScanThreads)
 	opened_ports := ps.GetOpenedPort(first, last)
 	if len(opened_ports) != 0 {
-		if NeuraxConfig.RequiredPort == 0 {
+		if NeuraxConfig.ScanRequiredPort == 0 {
 			return true
 		} else {
-			if coldfire.PortscanSingle(target, NeuraxConfig.RequiredPort) {
+			if coldfire.PortscanSingle(target, NeuraxConfig.ScanRequiredPort) {
 				return true
 			}
 		}
@@ -461,7 +461,7 @@ func neurax_scan_passive(c chan string) {
 
 func neurax_scan_active(c chan string) {
 	targets := []string{}
-	if NeuraxConfig.ReadArpCache {
+	if NeuraxConfig.ScanArpCache {
 		for ip, _ := range arp.Table() {
 			if !IsHostInfected(ip) {
 				targets = append(targets, ip)
