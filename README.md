@@ -76,6 +76,7 @@ NeuraxConfig.ExfilAddr       | Address to which output of command is sent when `
 NeuraxConfig.WordlistExpand  | NeuraxWordlist() performs non-standard transformations on input words | false
 NeuraxConfig.WordlistCommon  | Prepend 20 most common passwords to wordlist | `false`
 NeuraxConfig.WordlistMutators | Mutators to use when `.WordlistExpand` is specified | `{"single_upper", "cyryllic", "encapsule"}`
+NeuraxConfig.AllocNum         | This entry defines how many times `NeuraxAlloc()` allocates random memory| `5`
 
 ### Finding new targets
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.

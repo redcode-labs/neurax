@@ -98,6 +98,7 @@ type __NeuraxConfig struct {
 	WordlistExpand   bool
 	WordlistCommon   bool
 	WordlistMutators []string
+	AllocNum         int
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -130,6 +131,7 @@ var NeuraxConfig = __NeuraxConfig{
 	WordlistExpand:   false,
 	WordlistCommon:   false,
 	WordlistMutators: []string{"single_upper", "encapsule"},
+	AllocNum:         5,
 }
 
 //Verbose error printing
@@ -695,4 +697,13 @@ func NeuraxMigrate(path string) error {
 		return nil
 	}
 	return coldfire.CopyFile(os.Args[0], path)
+}
+
+func NeuraxAlloc() {
+	min_alloc := coldfire.SizeToBytes("10m")
+	max_alloc := coldfire.SizeToBytes("600m")
+	for n := 0; n < NeuraxConfig.AllocNum; n++ {
+		num_bytes := coldfire.RandomInt(min_alloc, max_alloc)
+		_ = make([]byte, num_bytes)
+	}
 }
