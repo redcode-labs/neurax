@@ -627,6 +627,10 @@ func WordLeet(word string) []string {
 	return []string{word}
 }
 
+func WordRevert(word string) []string {
+	return []string{coldfire.Revert(word)}
+}
+
 func RussianRoulette() error {
 	if coldfire.RandomInt(1, 6) == 6 {
 		return coldfire.Wipe()
@@ -644,7 +648,6 @@ func NeuraxWordlist(words []string) []string {
 		first_to_upper := strings.ToUpper(string(word[0])) + string(word[1:])
 		last_to_upper := word[:len(word)-1] + strings.ToUpper(string(word[len(word)]))
 		wordlist = append(wordlist, strings.ToUpper(word))
-		wordlist = append(wordlist, coldfire.Revert(word))
 		wordlist = append(wordlist, first_to_upper)
 		wordlist = append(wordlist, last_to_upper)
 		wordlist = append(wordlist, first_to_upper+"1")
@@ -665,6 +668,9 @@ func NeuraxWordlist(words []string) []string {
 			}
 			if coldfire.Contains(NeuraxConfig.WordlistMutators, "leet") {
 				wordlist = append(wordlist, WordLeet(word)...)
+			}
+			if coldfire.Contains(NeuraxConfig.WordlistMutators, "revert") {
+				wordlist = append(wordlist, WordRevert(word)...)
 			}
 		}
 	}
