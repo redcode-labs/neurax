@@ -50,6 +50,7 @@ func main(){
 <span style="color:#b45e02">Name</span> | <span style="color:#5f1e2d">Description</span> | <span style="color:#aa5502">Default value</span>
 --- | --- | ---
 NeuraxConfig.Stager           | Name of the command stager to use | `random, platform-compatible`
+NeuraxConfig.StagerSudo       | If true, Linux cmd stagers are executed with elevated privilleges | `false`
 NeuraxConfig.Port             | Port to serve on | `6741`
 NeuraxConfig.Platform         | Platform to target | `detected automatically`
 NeuraxConfig.Path             | The path under which binary is saved on the host | `random`
