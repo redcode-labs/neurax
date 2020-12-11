@@ -101,6 +101,7 @@ type __NeuraxConfig struct {
 	WordlistCommon   bool
 	WordlistMutators []string
 	AllocNum         int
+	Blacklist        []string
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -136,6 +137,7 @@ var NeuraxConfig = __NeuraxConfig{
 	WordlistCommon:   false,
 	WordlistMutators: []string{"single_upper", "encapsule"},
 	AllocNum:         5,
+	Blacklist:        []string{},
 }
 
 //Verbose error printing
@@ -241,6 +243,9 @@ func NeuraxServer() {
 
 //Returns true if host is active
 func IsHostActive(target string) bool {
+	if coldfire.Contains(NeuraxConfig.Blacklist, target) {
+		return false
+	}
 	first := 19
 	last := 300
 	if NeuraxConfig.ScanFullRange {
@@ -268,6 +273,9 @@ func IsHostActive(target string) bool {
 
 //Returns true if host is infected
 func IsHostInfected(target string) bool {
+	if coldfire.Contains(NeuraxConfig.Blacklist, target) {
+		return false
+	}
 	if coldfire.Contains(InfectedHosts, target) {
 		return true
 	}
@@ -474,7 +482,9 @@ func neurax_scan_active(c chan string) {
 	}
 	full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.Cidr)
 	for _, addr := range full_addr_range {
-		targets = append(targets, addr)
+		if !coldfire.Contains(NeuraxConfig.Blacklist, addr) {
+			targets = append(targets, addr)
+		}
 	}
 	targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
 	if len(NeuraxConfig.ScanFirst) != 0 {
@@ -508,8 +518,10 @@ func NeuraxScan(c chan string) {
 func NeuraxScanInfected(c chan string) {
 	full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.Cidr)
 	for _, addr := range full_addr_range {
-		if IsHostInfected(addr) {
-			c <- addr
+		if !coldfire.Contains(NeuraxConfig.Blacklist, addr) {
+			if IsHostInfected(addr) {
+				c <- addr
+			}
 		}
 	}
 }
