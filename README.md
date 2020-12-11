@@ -63,7 +63,8 @@ NeuraxConfig.ReverseListener | Contains `"<host>:<port>"` of remote reverse shel
 NeuraxConfig.ReverseProto    | Protocol to use for reverse connection | `"upd"`
 NeuraxConfig.ScanRequiredPort    | NeuraxScan() treats host as active only when it has a specific port opened| `none`
 NeuraxConfig.ScanPassive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | `false`
-NeuraxConfig.ScanTimeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | `2 seconds`
+NeuraxConfig.ScanPassiveTimeout     | NeuraxScan() monitors ARP layer this amount of seconds | `50 seconds`
+NeuraxConfig.ScanActiveTimeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | `2 seconds`
 NeuraxConfig.ScanAll         | NeuraxScan() captures packets on all found devices | `current wireless`
 NeuraxConfig.ScanFirst       | A slice containing IP addresses to scan first | `[]string{}`
 NeuraxConfig.ScanArpCache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | `false`

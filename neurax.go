@@ -69,75 +69,77 @@ var CommonPasswords = []string{
 	"football"}
 
 type __NeuraxConfig struct {
-	Stager           string
-	StagerSudo       bool
-	StagerRetry      int
-	Port             int
-	CommPort         int
-	CommProto        string
-	LocalIp          string
-	Path             string
-	FileName         string
-	Platform         string
-	Cidr             string
-	ScanPassive      bool
-	ScanTimeout      int
-	ScanAll          bool
-	ScanFast         bool
-	ScanFirst        []string
-	ScanArpCache     bool
-	ScanThreads      int
-	ScanFullRange    bool
-	Base64           bool
-	ScanRequiredPort int
-	Verbose          bool
-	Remove           bool
-	ScanInterval     string
-	ReverseListener  string
-	ReverseProto     string
-	PreventReexec    bool
-	ExfilAddr        string
-	WordlistExpand   bool
-	WordlistCommon   bool
-	WordlistMutators []string
-	AllocNum         int
-	Blacklist        []string
+	Stager             string
+	StagerSudo         bool
+	StagerRetry        int
+	Port               int
+	CommPort           int
+	CommProto          string
+	LocalIp            string
+	Path               string
+	FileName           string
+	Platform           string
+	Cidr               string
+	ScanPassive        bool
+	ScanActiveTimeout  int
+	ScanPassiveTimeout int
+	ScanAll            bool
+	ScanFast           bool
+	ScanFirst          []string
+	ScanArpCache       bool
+	ScanThreads        int
+	ScanFullRange      bool
+	Base64             bool
+	ScanRequiredPort   int
+	Verbose            bool
+	Remove             bool
+	ScanInterval       string
+	ReverseListener    string
+	ReverseProto       string
+	PreventReexec      bool
+	ExfilAddr          string
+	WordlistExpand     bool
+	WordlistCommon     bool
+	WordlistMutators   []string
+	AllocNum           int
+	Blacklist          []string
 }
 
 var NeuraxConfig = __NeuraxConfig{
-	Stager:           "random",
-	StagerSudo:       false,
-	StagerRetry:      0,
-	Port:             6741, //coldfire.RandomInt(2222, 9999),
-	CommPort:         7777,
-	CommProto:        "udp",
-	ScanRequiredPort: 0,
-	LocalIp:          coldfire.GetLocalIp(),
-	Path:             "random",
-	FileName:         "random",
-	Platform:         runtime.GOOS,
-	Cidr:             coldfire.GetLocalIp() + "/24",
-	ScanPassive:      false,
-	ScanTimeout:      2,
-	ScanAll:          false,
-	ScanFast:         false,
-	ScanFirst:        []string{},
-	ScanArpCache:     false,
-	ScanThreads:      10,
-	ScanFullRange:    false,
-	Base64:           false,
-	Verbose:          false,
-	Remove:           false,
-	ScanInterval:     "2m",
-	ReverseListener:  "none",
-	ReverseProto:     "udp",
-	PreventReexec:    true,
-	ExfilAddr:        "none",
-	WordlistExpand:   false,
-	WordlistCommon:   false,
-	WordlistMutators: []string{"single_upper", "encapsule"},
-	AllocNum:         5,
-	Blacklist:        []string{},
+	Stager:             "random",
+	StagerSudo:         false,
+	StagerRetry:        0,
+	Port:               6741, //coldfire.RandomInt(2222, 9999),
+	CommPort:           7777,
+	CommProto:          "udp",
+	ScanRequiredPort:   0,
+	LocalIp:            coldfire.GetLocalIp(),
+	Path:               "random",
+	FileName:           "random",
+	Platform:           runtime.GOOS,
+	Cidr:               coldfire.GetLocalIp() + "/24",
+	ScanPassive:        false,
+	ScanActiveTimeout:  2,
+	ScanPassiveTimeout: 50,
+	ScanAll:            false,
+	ScanFast:           false,
+	ScanFirst:          []string{},
+	ScanArpCache:       false,
+	ScanThreads:        10,
+	ScanFullRange:      false,
+	Base64:             false,
+	Verbose:            false,
+	Remove:             false,
+	ScanInterval:       "2m",
+	ReverseListener:    "none",
+	ReverseProto:       "udp",
+	PreventReexec:      true,
+	ExfilAddr:          "none",
+	WordlistExpand:     false,
+	WordlistCommon:     false,
+	WordlistMutators:   []string{"single_upper", "encapsule"},
+	AllocNum:           5,
+	Blacklist:          []string{},
 }
 
 //Verbose error printing
@@ -252,12 +254,12 @@ func IsHostActive(target string) bool {
 		last = 65535
 	}
 	if NeuraxConfig.ScanFast {
-		NeuraxConfig.ScanTimeout = 2
+		NeuraxConfig.ScanActiveTimeout = 2
 		NeuraxConfig.ScanThreads = 20
 		first = 21
 		last = 81
 	}
-	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanTimeout)*time.Second, NeuraxConfig.ScanThreads)
+	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanActiveTimeout)*time.Second, NeuraxConfig.ScanThreads)
 	opened_ports := ps.GetOpenedPort(first, last)
 	if len(opened_ports) != 0 {
 		if NeuraxConfig.ScanRequiredPort == 0 {
@@ -429,7 +431,7 @@ func NeuraxReverse() {
 
 func neurax_scan_passive_single_iface(c chan string, iface string) {
 	var snapshot_len int32 = 1024
-	timeout := 500 * time.Second
+	timeout := time.Duration(NeuraxConfig.ScanPassiveTimeout) * time.Second
 	if NeuraxConfig.ScanFast {
 		timeout = 50 * time.Second
 	}
