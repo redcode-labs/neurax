@@ -100,6 +100,7 @@ type __NeuraxConfig struct {
 	ExfilAddr          string
 	WordlistExpand     bool
 	WordlistCommon     bool
+	WordlistCommonNum  int
 	WordlistMutators   []string
 	AllocNum           int
 	Blacklist          []string
@@ -137,6 +138,7 @@ var NeuraxConfig = __NeuraxConfig{
 	ExfilAddr:          "none",
 	WordlistExpand:     false,
 	WordlistCommon:     false,
+	WordlistCommonNum:  len(CommonPasswords),
 	WordlistMutators:   []string{"single_upper", "encapsule"},
 	AllocNum:           5,
 	Blacklist:          []string{},
@@ -678,8 +680,8 @@ func RussianRoulette() error {
 //Returns transformed words from input slice
 func NeuraxWordlist(words []string) []string {
 	wordlist := []string{}
-	if NeuraxConfig.WordlistCommon {
-		wordlist = append(wordlist, CommonPasswords...)
+	for i := 0; i < NeuraxConfig.WordlistCommonNum; i++ {
+		wordlist = append(wordlist, CommonPasswords[i])
 	}
 	for _, word := range words {
 		first_to_upper := strings.ToUpper(string(word[0])) + string(word[1:])

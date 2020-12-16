@@ -78,6 +78,7 @@ NeuraxConfig.PreventReexec   | If true, when any command matches with those that
 NeuraxConfig.ExfilAddr       | Address to which output of command is sent when `'v'` preamble is present. | `none`
 NeuraxConfig.WordlistExpand  | NeuraxWordlist() performs non-standard transformations on input words | false
 NeuraxConfig.WordlistCommon  | Prepend 20 most common passwords to wordlist | `false`
+NeuraxConfig.WordlistCommonNum | Number of common passwords to use | `all`
 NeuraxConfig.WordlistMutators | Mutators to use when `.WordlistExpand` is specified | `{"single_upper", "cyryllic", "encapsule"}`
 NeuraxConfig.AllocNum         | This entry defines how many times `NeuraxAlloc()` allocates random memory| `5`
 NeuraxConfig.Blacklist        | Slice that contains IP addresses that are excluded from any type of scanning | `[]string{}`
