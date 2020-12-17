@@ -83,6 +83,7 @@ NeuraxConfig.WordlistCommonNum | Number of common passwords to use | `all`
 NeuraxConfig.WordlistMutators | Mutators to use when `.WordlistExpand` is specified | `{"single_upper", "cyryllic", "encapsule"}`
 NeuraxConfig.AllocNum         | This entry defines how many times `NeuraxAlloc()` allocates random memory| `5`
 NeuraxConfig.Blacklist        | Slice that contains IP addresses that are excluded from any type of scanning | `[]string{}`
+NeuraxConfig.FastHTTP         | HTTP request in IsHostInfected() is performed using fasthttp library | `false`
 
 ### Finding new targets
 Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.

