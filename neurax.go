@@ -678,7 +678,7 @@ func RussianRoulette() error {
 }
 
 //Returns transformed words from input slice
-func NeuraxWordlist(words []string) []string {
+func NeuraxWordlist(words ...string) []string {
 	wordlist := []string{}
 	for i := 0; i < NeuraxConfig.WordlistCommonNum; i++ {
 		wordlist = append(wordlist, CommonPasswords[i])

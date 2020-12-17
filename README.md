@@ -171,7 +171,7 @@ This behaviour can be also commenced using `NeuraxPurge()` executed somewhere in
 
 ### Wordlist creation
 If spread vector of your choice is based on some kind of bruteforce, it is good to have a proper wordlist prepared. 
-Storing words in a text-file on client side isn't really effective, so you can mutate a basic wordlist using `NeuraxWordlist(words []string) []string`.
+Storing words in a text-file on client side isn't really effective, so you can mutate a basic wordlist using `NeuraxWordlist(...words) []string`.
 
 ### Setting time-to-live 
 If you want your binary to remove itself after given time, use `NeuraxSetTTL()` at the beginnig of your code.
