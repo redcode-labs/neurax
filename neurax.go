@@ -70,83 +70,87 @@ var CommonPasswords = []string{
 	"football"}
 
 type __NeuraxConfig struct {
-	Stager             string
-	StagerSudo         bool
-	StagerRetry        int
-	Port               int
-	CommPort           int
-	CommProto          string
-	LocalIp            string
-	Path               string
-	FileName           string
-	Platform           string
-	Cidr               string
-	ScanPassive        bool
-	ScanActiveTimeout  int
-	ScanPassiveTimeout int
-	ScanAll            bool
-	ScanFast           bool
-	ScanFirst          []string
-	ScanArpCache       bool
-	ScanThreads        int
-	ScanFullRange      bool
-	ScanGatewayFirst   bool
-	Base64             bool
-	ScanRequiredPort   int
-	Verbose            bool
-	Remove             bool
-	ScanInterval       string
-	ReverseListener    string
-	ReverseProto       string
-	PreventReexec      bool
-	ExfilAddr          string
-	WordlistExpand     bool
-	WordlistCommon     bool
-	WordlistCommonNum  int
-	WordlistMutators   []string
-	AllocNum           int
-	Blacklist          []string
-	FastHTTP           bool
+	Stager                   string
+	StagerSudo               bool
+	StagerRetry              int
+	Port                     int
+	CommPort                 int
+	CommProto                string
+	LocalIp                  string
+	Path                     string
+	FileName                 string
+	Platform                 string
+	Cidr                     string
+	ScanPassive              bool
+	ScanActiveTimeout        int
+	ScanPassiveTimeout       int
+	ScanAll                  bool
+	ScanFast                 bool
+	ScanFirst                []string
+	ScanArpCache             bool
+	ScanThreads              int
+	ScanFullRange            bool
+	ScanGatewayFirst         bool
+	Base64                   bool
+	ScanRequiredPort         int
+	Verbose                  bool
+	Remove                   bool
+	ScanInterval             string
+	ReverseListener          string
+	ReverseProto             string
+	PreventReexec            bool
+	ExfilAddr                string
+	WordlistExpand           bool
+	WordlistCommon           bool
+	WordlistCommonNum        int
+	WordlistMutators         []string
+	WordlistPermuteNum       int
+	WordlistPermuteSeparator string
+	AllocNum                 int
+	Blacklist                []string
+	FastHTTP                 bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
-	Stager:             "random",
-	StagerSudo:         false,
-	StagerRetry:        0,
-	Port:               6741, //coldfire.RandomInt(2222, 9999),
-	CommPort:           7777,
-	CommProto:          "udp",
-	ScanRequiredPort:   0,
-	LocalIp:            GetLocalIp(),
-	Path:               "random",
-	FileName:           "random",
-	Platform:           runtime.GOOS,
-	Cidr:               GetLocalIp() + "/24",
-	ScanPassive:        false,
-	ScanActiveTimeout:  2,
-	ScanPassiveTimeout: 50,
-	ScanAll:            false,
-	ScanFast:           false,
-	ScanFirst:          []string{},
-	ScanArpCache:       false,
-	ScanThreads:        10,
-	ScanFullRange:      false,
-	ScanGatewayFirst:   false,
-	Base64:             false,
-	Verbose:            false,
-	Remove:             false,
-	ScanInterval:       "2m",
-	ReverseListener:    "none",
-	ReverseProto:       "udp",
-	PreventReexec:      true,
-	ExfilAddr:          "none",
-	WordlistExpand:     false,
-	WordlistCommon:     false,
-	WordlistCommonNum:  len(CommonPasswords),
-	WordlistMutators:   []string{"single_upper", "encapsule"},
-	AllocNum:           5,
-	Blacklist:          []string{},
-	FastHTTP:           false,
+	Stager:                   "random",
+	StagerSudo:               false,
+	StagerRetry:              0,
+	Port:                     6741, //coldfire.RandomInt(2222, 9999),
+	CommPort:                 7777,
+	CommProto:                "udp",
+	ScanRequiredPort:         0,
+	LocalIp:                  GetLocalIp(),
+	Path:                     "random",
+	FileName:                 "random",
+	Platform:                 runtime.GOOS,
+	Cidr:                     GetLocalIp() + "/24",
+	ScanPassive:              false,
+	ScanActiveTimeout:        2,
+	ScanPassiveTimeout:       50,
+	ScanAll:                  false,
+	ScanFast:                 false,
+	ScanFirst:                []string{},
+	ScanArpCache:             false,
+	ScanThreads:              10,
+	ScanFullRange:            false,
+	ScanGatewayFirst:         false,
+	Base64:                   false,
+	Verbose:                  false,
+	Remove:                   false,
+	ScanInterval:             "2m",
+	ReverseListener:          "none",
+	ReverseProto:             "udp",
+	PreventReexec:            true,
+	ExfilAddr:                "none",
+	WordlistExpand:           false,
+	WordlistCommon:           false,
+	WordlistCommonNum:        len(CommonPasswords),
+	WordlistMutators:         []string{"single_upper", "encapsule"},
+	WordlistPermuteNum:       2,
+	WordlistPermuteSeparator: "-",
+	AllocNum:                 5,
+	Blacklist:                []string{},
+	FastHTTP:                 false,
 }
 
 //Verbose error printing
@@ -740,6 +744,21 @@ func NeuraxWordlist(words ...string) []string {
 		}
 	}
 	return wordlist
+}
+
+func NeuraxWordlistPermute(words ...string) []string {
+	res := []string{}
+	permuted := ""
+	sep := NeuraxConfig.WordlistPermuteSeparator
+	for _, word := range words {
+		cur_perm_len := len(strings.Split(permuted, sep))
+		selected := RandomSelectStr(words)
+		if !strings.Contains(permuted, selected) && cur_perm_len < NeuraxConfig.WordlistPermuteNum {
+			permuted += word + sep + selected + sep
+			res = append(res, permuted)
+		}
+	}
+	return res
 }
 
 func NeuraxSetTTL(interval string) {
