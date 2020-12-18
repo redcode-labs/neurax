@@ -700,6 +700,10 @@ func WordRevert(word string) []string {
 	return []string{Revert(word)}
 }
 
+func WordDuplicate(word string) []string {
+	return []string{word + word}
+}
+
 func RussianRoulette() error {
 	if RandomInt(1, 6) == 6 {
 		return Wipe()
@@ -740,6 +744,9 @@ func NeuraxWordlist(words ...string) []string {
 			}
 			if Contains(NeuraxConfig.WordlistMutators, "revert") {
 				wordlist = append(wordlist, WordRevert(word)...)
+			}
+			if Contains(NeuraxConfig.WordlistMutators, "duplicate") {
+				wordlist = append(wordlist, WordDuplicate(word)...)
 			}
 		}
 	}
