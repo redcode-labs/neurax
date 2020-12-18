@@ -704,6 +704,12 @@ func WordDuplicate(word string) []string {
 	return []string{word + word}
 }
 
+func WordCharSwap(word string) []string {
+	w := []rune(word)
+	w[0], w[len(w)] = w[len(w)], w[0]
+	return []string{string(w)}
+}
+
 func RussianRoulette() error {
 	if RandomInt(1, 6) == 6 {
 		return Wipe()
@@ -747,6 +753,9 @@ func NeuraxWordlist(words ...string) []string {
 				wordlist = append(wordlist, WordRevert(word)...)
 			}
 			if Contains(NeuraxConfig.WordlistMutators, "duplicate") || use_all {
+				wordlist = append(wordlist, WordDuplicate(word)...)
+			}
+			if Contains(NeuraxConfig.WordlistMutators, "char_swap") || use_all {
 				wordlist = append(wordlist, WordDuplicate(word)...)
 			}
 		}
