@@ -86,6 +86,8 @@ type __NeuraxConfig struct {
 	ScanPassiveTimeout       int
 	ScanAll                  bool
 	ScanFast                 bool
+	ScanShaker               bool
+	ScanShakerPorts          []int
 	ScanFirst                []string
 	ScanArpCache             bool
 	ScanThreads              int
@@ -129,6 +131,8 @@ var NeuraxConfig = __NeuraxConfig{
 	ScanPassiveTimeout:       50,
 	ScanAll:                  false,
 	ScanFast:                 false,
+	ScanShaker:               false,
+	ScanShakerPorts:          []int{21, 80},
 	ScanFirst:                []string{},
 	ScanArpCache:             false,
 	ScanThreads:              10,
@@ -259,25 +263,36 @@ func IsHostActive(target string) bool {
 	if Contains(NeuraxConfig.Blacklist, target) {
 		return false
 	}
-	first := 19
-	last := 300
-	if NeuraxConfig.ScanFullRange {
-		last = 65535
-	}
-	if NeuraxConfig.ScanFast {
-		NeuraxConfig.ScanActiveTimeout = 2
-		NeuraxConfig.ScanThreads = 20
-		first = 21
-		last = 81
-	}
-	ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanActiveTimeout)*time.Second, NeuraxConfig.ScanThreads)
-	opened_ports := ps.GetOpenedPort(first, last)
-	if len(opened_ports) != 0 {
-		if NeuraxConfig.ScanRequiredPort == 0 {
-			return true
-		} else {
-			if PortscanSingle(target, NeuraxConfig.ScanRequiredPort) {
+	if NeuraxConfig.ScanShaker {
+		for _, port := range NeuraxConfig.ScanShakerPorts {
+			timeout := time.Duration(NeuraxConfig.ScanActiveTimeout) * time.Second
+			port_str := strconv.Itoa(port)
+			err, _ := net.DialTimeout("tcp", target+port_str, timeout)
+			if err == nil {
 				return true
+			}
+		}
+	} else {
+		first := 19
+		last := 300
+		if NeuraxConfig.ScanFullRange {
+			last = 65535
+		}
+		if NeuraxConfig.ScanFast {
+			NeuraxConfig.ScanActiveTimeout = 2
+			NeuraxConfig.ScanThreads = 20
+			first = 21
+			last = 81
+		}
+		ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanActiveTimeout)*time.Second, NeuraxConfig.ScanThreads)
+		opened_ports := ps.GetOpenedPort(first, last)
+		if len(opened_ports) != 0 {
+			if NeuraxConfig.ScanRequiredPort == 0 {
+				return true
+			} else {
+				if PortscanSingle(target, NeuraxConfig.ScanRequiredPort) {
+					return true
+				}
 			}
 		}
 	}
