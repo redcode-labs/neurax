@@ -705,7 +705,18 @@ func WordSingleUpperTransform(word string) []string {
 	return res
 }
 
-func WordLeet(word string) []string {
+func WordBasicLeet(word string) []string {
+	leets := map[string]string{
+		"a": "4", "b": "3", "g": "9", "o": "0", "i": "1",
+	}
+	for k, v := range leets {
+		word = strings.Replace(word, k, v, -1)
+		word = strings.Replace(word, strings.ToUpper(k), v, -1)
+	}
+	return []string{word}
+}
+
+func WordFullLeet(word string) []string {
 	leets := map[string]string{
 		"a": "4", "b": "3", "g": "9", "o": "0",
 		"t": "7", "s": "5", "h": "#", "i": "1",
@@ -773,8 +784,11 @@ func NeuraxWordlist(words ...string) []string {
 			if Contains(NeuraxConfig.WordlistMutators, "single_upper") || use_all {
 				wordlist = append(wordlist, WordSingleUpperTransform(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "leet") || use_all {
-				wordlist = append(wordlist, WordLeet(word)...)
+			if Contains(NeuraxConfig.WordlistMutators, "basic_leet") || use_all {
+				wordlist = append(wordlist, WordBasicLeet(word)...)
+			}
+			if Contains(NeuraxConfig.WordlistMutators, "full_leet") || use_all {
+				wordlist = append(wordlist, WordFullLeet(word)...)
 			}
 			if Contains(NeuraxConfig.WordlistMutators, "revert") || use_all {
 				wordlist = append(wordlist, WordRevert(word)...)
