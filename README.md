@@ -90,9 +90,8 @@ NeuraxConfig.Blacklist        | Slice that contains IP addresses that are exclud
 NeuraxConfig.FastHTTP         | HTTP request in IsHostInfected() is performed using fasthttp library | `false`
 
 ### Finding new targets
-Function `NeuraxScan(c chan string)` enables detection of active hosts on local network.
-It accepts a channel of type string as it's only argument and should be launched as a goroutine.
-Any scanned host will be sent through that channel as soon as it was classified as active.
+Function `NeuraxScan(func(string))` enables detection of active hosts on local network.
+It's only argument is a callback function that is called in background for every active host.
 Host is treated as active when it has at least 1 open port, is not already infected + fullfils conditions specified within `NeuraxConfig`.
 
 `NeuraxScan()` runs as infinite loop - it scans whole subnet specified by `.Cidr` config entry and when every host is scanned, function sleeps for an interval given in `.ScanInterval`.
