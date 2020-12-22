@@ -94,6 +94,7 @@ type __NeuraxConfig struct {
 	ScanPassive              bool
 	ScanActiveTimeout        int
 	ScanPassiveTimeout       int
+	ScanPassiveIface         string
 	ScanAll                  bool
 	ScanFast                 bool
 	ScanShaker               bool
@@ -141,6 +142,7 @@ var NeuraxConfig = __NeuraxConfig{
 	ScanPassive:              false,
 	ScanActiveTimeout:        2,
 	ScanPassiveTimeout:       50,
+	ScanPassiveIface:         "default",
 	ScanAll:                  false,
 	ScanFast:                 false,
 	ScanShaker:               false,
@@ -509,6 +511,9 @@ func neurax_scan_passive_single_iface(f func(string), iface string) {
 func neurax_scan_passive(f func(string)) {
 	current_iface, _ := Iface()
 	ifaces_to_use := []string{current_iface}
+	if NeuraxConfig.ScanPassiveIface != "default" {
+		ifaces_to_use = []string{NeuraxConfig.ScanPassiveIface}
+	}
 	device_names := []string{}
 	devices, err := pcap.FindAllDevs()
 	for _, dev := range devices {
