@@ -689,16 +689,9 @@ func WordCyryllicReplace(word string) []string {
 
 	rus_word := word
 	for k, v := range refs {
-		rus_word = strings.Replace(rus_word, k, v, -1)
+		rus_word = strings.Replace(rus_word, v, k, -1)
 	}
 	wordlist = append(wordlist, rus_word)
-
-	nrus_word := word
-	for k, v := range refs {
-		nrus_word = strings.Replace(nrus_word, v, k, -1)
-	}
-	wordlist = append(wordlist, nrus_word)
-
 	return wordlist
 }
 
