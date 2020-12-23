@@ -73,6 +73,7 @@ NeuraxConfig.ScanCidr             | NeuraxScan() scans this CIDR | `local IP + "
 NeuraxConfig.ScanThreads          | Number of threads to use for NeuraxScan() | `10`
 NeuraxConfig.ScanFullRange       | NeuraxScan() scans all ports of target host to determine if it is active | `from 19 to 300`
 NeuraxConfig.ScanInterval    | Time interval to sleep before scanning whole subnet again | `"2m"` 
+NeuraxConfig.ScanHostInterval    | Time interval to sleep before scanning next host in active mode | `"none"` 
 NeuraxConfig.ScanGatewayFirst | Gateway is the first host scanned when active scan is used | `false`
 NeuraxConfig.ScanOnly | NeuraxScan() scans only those hosts | `[]string{}`
 NeuraxConfig.Verbose          | If true, all error messages are printed to STDOUT | `false`
