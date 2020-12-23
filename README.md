@@ -89,6 +89,7 @@ NeuraxConfig.WordlistPermuteSeparator | A separator character to use for permuta
 NeuraxConfig.AllocNum         | This entry defines how many times `NeuraxAlloc()` allocates random memory| `5`
 NeuraxConfig.Blacklist        | Slice that contains IP addresses that are excluded from any type of scanning | `[]string{}`
 NeuraxConfig.FastHTTP         | HTTP request in IsHostInfected() is performed using fasthttp library | `false`
+NeuraxConfig.Debug            | Enable debug messages | `false`
 
 ### Finding new targets
 Function `NeuraxScan(func(string))` enables detection of active hosts on local network.
