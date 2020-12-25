@@ -508,10 +508,10 @@ func neurax_scan_passive_single_iface(f func(string), iface string) {
 			ip, _ := ip_layer.(*layers.IPv4)
 			source := fmt.Sprintf("%s", ip.SrcIP)
 			destination := fmt.Sprintf("%s", ip.DstIP)
-			if source != GetLocalIp() && !IsHostInfected(source) {
+			if source != GetLocalIp() && !IsHostInfected(source) && source != "255.255.255.255" {
 				go f(source)
 			}
-			if destination != GetLocalIp() && !IsHostInfected(destination) {
+			if destination != GetLocalIp() && !IsHostInfected(destination) && destination != "255.255.255.255" {
 				go f(destination)
 			}
 		}
