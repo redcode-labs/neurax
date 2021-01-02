@@ -247,6 +247,9 @@ func NeuraxStager() string {
 	if N.Path == "random" {
 		N.Path = RandomSelectStr(paths)
 	}
+	if N.FileName == "random" {
+		N.FileName = RandomString(RandomInt(4, 10))
+	}
 	if N.FileName == "random" && N.Platform == "windows" {
 		N.FileName += ".exe"
 	}
