@@ -97,7 +97,8 @@ type __N struct {
 	ScanActiveTimeout        int
 	ScanPassiveTimeout       int
 	ScanPassiveIface         string
-	ScanAll                  bool
+	ScanPassiveAll           bool
+	ScanPassiveNoArp         bool
 	ScanFast                 bool
 	ScanShaker               bool
 	ScanShakerPorts          []int
@@ -147,7 +148,8 @@ var N = __N{
 	ScanActiveTimeout:        2,
 	ScanPassiveTimeout:       50,
 	ScanPassiveIface:         "default",
-	ScanAll:                  false,
+	ScanPassiveAll:           false,
+	ScanPassiveNoArp:         false,
 	ScanFast:                 false,
 	ScanShaker:               false,
 	ScanShakerPorts:          []int{21, 80},
@@ -505,7 +507,9 @@ func neurax_scan_passive_single_iface(f func(string), iface string) {
 	}
 	handler, err := pcap.OpenLive(iface, snapshot_len, false, timeout)
 	ReportError("Cannot open device", err)
-	handler.SetBPFFilter("arp")
+	if !N.ScanPassiveNoArp {
+		handler.SetBPFFilter("arp")
+	}
 	defer handler.Close()
 	packetSource := gopacket.NewPacketSource(handler, handler.LinkType())
 	for packet := range packetSource.Packets() {
@@ -536,7 +540,7 @@ func neurax_scan_passive(f func(string)) {
 		device_names = append(device_names, dev.Name)
 	}
 	ReportError("Cannot obtain network interfaces", err)
-	if N.ScanAll {
+	if N.ScanPassiveAll {
 		ifaces_to_use = append(ifaces_to_use, device_names...)
 	}
 	for _, device := range ifaces_to_use {
