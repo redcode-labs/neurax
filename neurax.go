@@ -855,6 +855,9 @@ func NeuraxWordlist(words ...string) []string {
 			}
 		}
 	}
+	if Contains(N.WordlistMutators, "permute") || use_all {
+		wordlist = append(wordlist, NeuraxWordlistPermute(words...)...)
+	}
 	wordlist = RemoveDuplicatesStr(wordlist)
 	return wordlist
 }
