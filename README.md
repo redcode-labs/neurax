@@ -66,9 +66,10 @@ N.ScanPassive     | NeuraxScan() detects hosts using passive ARP traffic monitor
 N.ScanPassiveTimeout     | NeuraxScan() monitors ARP layer this amount of seconds | `50 seconds`
 N.ScanPassiveIface     | Interface to use when scanning passively| `default`
 N.ScanActiveTimeout     | NeuraxScan() sets this value as timeout for scanned port in each thread | `2 seconds`
-N.ScanPassiveAll         | NeuraxScan() captures packets on all found devices | `current wireless`
+N.ScanPassiveAll         | NeuraxScan() captures packets on all found devices | `false`
 N.ScanPassiveNoArp | Passive scan doesn't set strict ARP capture filter | `false`
 N.ScanFirst       | A slice containing IP addresses to scan first | `[]string{}`
+N.ScanFirstOnly | NeuraxScan() scans only hosts specified within `.ScanFirst`| `false`
 N.ScanArpCache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | `false`
 N.ScanCidr             | NeuraxScan() scans this CIDR | `local IP + "\24"`
 N.ScanThreads          | Number of threads to use for NeuraxScan() | `10`
@@ -76,7 +77,6 @@ N.ScanFullRange       | NeuraxScan() scans all ports of target host to determine
 N.ScanInterval    | Time interval to sleep before scanning whole subnet again | `"2m"` 
 N.ScanHostInterval    | Time interval to sleep before scanning next host in active mode | `"none"` 
 N.ScanGatewayFirst | Gateway is the first host scanned when active scan is used | `false`
-N.ScanOnly | NeuraxScan() scans only those hosts | `[]string{}`
 N.Verbose          | If true, all error messages are printed to STDOUT | `false`
 N.Remove           | When any errors occur, binary removes itself from the host | `false`
 N.PreventReexec   | If true, when any command matches with those that were already received before, it is not executed | `true`

