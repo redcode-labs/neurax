@@ -137,6 +137,7 @@ type __N struct {
 	WordlistMutators         []string
 	WordlistPermuteNum       int
 	WordlistPermuteSeparator string
+	WordlistShuffle          bool
 	AllocNum                 int
 	Blacklist                []string
 	FastHTTP                 bool
@@ -187,6 +188,7 @@ var N = __N{
 	WordlistMutators:         []string{"single_upper", "encapsule"},
 	WordlistPermuteNum:       2,
 	WordlistPermuteSeparator: "-",
+	WordlistShuffle:          false,
 	AllocNum:                 5,
 	Blacklist:                []string{},
 	FastHTTP:                 false,
@@ -895,6 +897,9 @@ func NeuraxWordlist(words ...string) []string {
 		wordlist = append(wordlist, NeuraxWordlistPermute(words...)...)
 	}
 	wordlist = RemoveDuplicatesStr(wordlist)
+	if N.WordlistShuffle {
+		wordlist = ShuffleSlice(wordlist)
+	}
 	return wordlist
 }
 
