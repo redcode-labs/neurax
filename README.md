@@ -14,11 +14,6 @@
 
 `go get -u github.com/yelinaung/go-haikunator`
 
-## Usage
-With help of Neurax, Golang binaries can spread on local network without using any external servers.
-
-Diverse config options and command stagers allow rapid propagation across various wireless environments.
-
 ## New in v. 2.0
 - New wordlist mutators + common passwords by country
 - Improvised passive scanning
@@ -37,6 +32,12 @@ Diverse config options and command stagers allow rapid propagation across variou
 - Possibility to chain multiple stagers (ex. `wget` + `curl`)
 - Volume and complexity of created wordlist can be easily tuned (with options such as `.WordlistExpand`)
 - Possibility to set time-to-live of created binary
+
+## Usage
+With help of Neurax, Golang binaries can spread on local network without using any external servers.
+
+Diverse config options and command stagers allow rapid propagation across various wireless environments.
+
 
 
 ### Example code
@@ -82,7 +83,7 @@ N.Base64           | Encode the transferred binary in base64 | `false`
 N.CommPort        | Port that is used by binaries to communicate with each other | `7777`
 N.CommProto       | Protocol for communication between nodes | `"udp"`
 N.ReverseListener | Contains `"<host>:<port>"` of remote reverse shell handler | `not specified`
-N.ReverseProto    | Protocol to use for reverse connection | `"upd"`
+N.ReverseProto    | Protocol to use for reverse connection | `"udp"`
 N.ScanRequiredPort    | NeuraxScan() treats host as active only when it has a specific port opened| `none`
 N.ScanPassive     | NeuraxScan() detects hosts using passive ARP traffic monitoring | `false`
 N.ScanPassiveTimeout     | NeuraxScan() monitors ARP layer this amount of seconds | `50 seconds`
