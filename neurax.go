@@ -853,7 +853,7 @@ func NeuraxWordlist(words ...string) []string {
 	}
 	for _, word := range words {
 		first_to_upper := strings.ToUpper(string(word[0])) + string(word[1:])
-		last_to_upper := "FIX THIS" //word[:len(word)-1] + strings.ToUpper(string(word[len(word)]))
+		last_to_upper := word[:len(word)-1] + strings.ToUpper(string(word[len(word)-1]))
 		wordlist = append(wordlist, strings.ToUpper(word))
 		wordlist = append(wordlist, first_to_upper)
 		wordlist = append(wordlist, last_to_upper)
