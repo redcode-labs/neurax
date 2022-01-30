@@ -14,6 +14,9 @@
 
 `go get -u github.com/yelinaung/go-haikunator`
 
+## New in v. 2.5
+- Optional background execution of the binary in command stager (`.StagerBg`)
+
 ## New in v. 2.0
 - New wordlist mutators + common passwords by country
 - Improvised passive scanning
