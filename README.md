@@ -1,4 +1,3 @@
-
 <br></br>
 <p align="center">
   <a>
@@ -16,6 +15,7 @@
 
 ## New in v. 2.5
 - Optional background execution of the binary in command stager (`.StagerBg`)
+- Command stager saves and executes in context-local path 
 
 ## New in v. 2.0
 - New wordlist mutators + common passwords by country
@@ -80,7 +80,7 @@ N.StagerSudo       | If true, Linux cmd stagers are executed with elevated privi
 N.StagerRetry      | Number of times to re-execute the command stager | `0`
 N.Port             | Port to serve on | `6741`
 N.Platform         | Platform to target | `detected automatically`
-N.Path             | The path under which binary is saved on the host | `random`
+N.Path             | The path under which binary is saved on the host | `.`
 N.FileName        | Name under which downloaded binary should be served and then saved | `random`
 N.Base64           | Encode the transferred binary in base64 | `false`
 N.CommPort        | Port that is used by binaries to communicate with each other | `7777`

