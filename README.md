@@ -98,7 +98,7 @@ N.ScanFirst       | A slice containing IP addresses to scan first | `[]string{}`
 N.ScanFirstOnly | NeuraxScan() scans only hosts specified within `.ScanFirst`| `false`
 N.ScanArpCache   | NeuraxScan() scans first the hosts found in local ARP cache. Works only with active scan | `false`
 N.ScanCidr             | NeuraxScan() scans this CIDR | `local IP + "\24"`
-N.ScanThreads          | Number of threads to use for NeuraxScan() | `10`
+N.ScanActiveThreads          | Number of threads to use for NeuraxScan() | `10`
 N.ScanFullRange       | NeuraxScan() scans all ports of target host to determine if it is active | `from 19 to 300`
 N.ScanInterval    | Time interval to sleep before scanning whole subnet again | `"2m"` 
 N.ScanHostInterval    | Time interval to sleep before scanning next host in active mode | `"none"` 

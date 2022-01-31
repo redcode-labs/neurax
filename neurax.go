@@ -116,7 +116,7 @@ type __N struct {
 	ScanShakerPorts          []int
 	ScanFirst                []string
 	ScanArpCache             bool
-	ScanThreads              int
+	ScanActiveThreads              int
 	ScanFullRange            bool
 	ScanGatewayFirst         bool
 	ScanFirstOnly            bool
@@ -170,7 +170,7 @@ var N = __N{
 	ScanShakerPorts:          []int{21, 80},
 	ScanFirst:                []string{},
 	ScanArpCache:             false,
-	ScanThreads:              10,
+	ScanActiveThreads:              10,
 	ScanFullRange:            false,
 	ScanGatewayFirst:         false,
 	ScanFirstOnly:            false,
@@ -337,11 +337,11 @@ func IsHostActive(target string) bool {
 		}
 		if N.ScanFast {
 			N.ScanActiveTimeout = 2
-			N.ScanThreads = 20
+			N.ScanActiveThreads = 20
 			first = 21
 			last = 81
 		}
-		ps := ps.NewPortScanner(target, time.Duration(N.ScanActiveTimeout)*time.Second, N.ScanThreads)
+		ps := ps.NewPortScanner(target, time.Duration(N.ScanActiveTimeout)*time.Second, N.ScanActiveThreads)
 		opened_ports := ps.GetOpenedPort(first, last)
 		if len(opened_ports) != 0 {
 			if N.ScanRequiredPort == 0 {
