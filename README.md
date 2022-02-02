@@ -8,12 +8,6 @@
 <p align="center"> A framework that aids in creation of self-spreading software</p>
 
 <br></br>
-## Requirements
-`go get -u github.com/redcode-labs/Coldfire`
-
-`go get -u github.com/yelinaung/go-haikunator`
-
-`go get -u github.com/zbiljic/go-filelock`
 ## New in v. 2.5
 - Optional background execution of the binary in command stager (`N.StagerBg`)
 - Command stager saves and executes in context-local path 
@@ -24,6 +18,7 @@ I will come up with a decent alternative prior to next release.
 - Single-execution policy on target machine, enforced with an exclusive file mutex placed inside `NeuraxServer()`.
 - Added a nested goroutine for serving the binary
 - New `httrack` stager for Linux
+- Commented-out common wordlist for detection evasion
 
 ## New in v. 2.0
 - New wordlist mutators + common passwords by country
