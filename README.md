@@ -9,7 +9,7 @@
 
 <br></br>
 ## New in v. 2.5
-- Optional background execution of the binary in command stager (`N.StagerBg`)
+- Optional background execution of the second-stage binary (`N.StagerBg`)
 - Command stager saves and executes in context-local path 
 - It also removes the downloaded binary right after successful execution
 - Removed synchronized command execution mechanism for speed/stability reasons.
@@ -19,6 +19,7 @@ I will come up with a decent alternative prior to next release.
 - Added a nested goroutine for serving the binary
 - New `httrack` stager for Linux
 - Commented-out common wordlist for detection evasion
+- Command stager can wait before removing the binary (`N.StagerRemovalDelay`)
 
 ## New in v. 2.0
 - New wordlist mutators + common passwords by country
@@ -81,6 +82,7 @@ func main(){
 N.Stager           | Name of the command stager to use | `random, platform-compatible`
 N.StagerSudo       | If true, Linux cmd stagers are executed with elevated privilleges | `false`
 N.StagerRetry      | Number of times to re-execute the command stager | `0`
+N.StagerRemoveDelay      | Sleep instruction is applied before removing the downloaded binary | `true`
 N.Port             | Port to serve on | `6741`
 N.Platform         | Platform to target | `detected automatically`
 N.Path             | The path under which binary is saved on the host | `.`

