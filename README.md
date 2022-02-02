@@ -13,9 +13,14 @@
 
 `go get -u github.com/yelinaung/go-haikunator`
 
+`go get -u github.com/zbiljic/go-filelock`
 ## New in v. 2.5
 - Optional background execution of the binary in command stager (`.StagerBg`)
 - Command stager saves and executes in context-local path 
+- Removed synchronized command execution mechanism for speed/stability reasons.
+I will come up with a decent alternative prior to next release.
+- `N.NoInfectCheck` to disable checking if host is already infected.
+- Single-execution policy on target machine, enforced with an exclusive file mutex placed inside `NeuraxServer()`.
 
 ## New in v. 2.0
 - New wordlist mutators + common passwords by country
@@ -119,6 +124,7 @@ N.AllocNum         | This entry defines how many times `NeuraxAlloc()` allocates
 N.Blacklist        | Slice that contains IP addresses that are excluded from any type of scanning | `[]string{}`
 N.FastHTTP         | HTTP request in IsHostInfected() is performed using fasthttp library | `false`
 N.Debug            | Enable debug messages | `false`
+N.NoInfectCheck            | Disable checking if host is already infected | `true`
 
 ### Finding new targets
 Function `NeuraxScan(func(string))` enables detection of active hosts on local network.
@@ -137,60 +143,6 @@ Another function, `NeuraxZIP(num_files int) err` allows to create a randomly nam
 It is saved in current directory, and contains up to `num_files` random files it.
 
 `NeuraxZIPSelf()` simply zips the current binary, creating an archive holding the same name.
-
-### Synchronized command execution
-Function `NeuraxOpenComm()` (launched as goroutine) allows binary to receive and execute commands.
-It listens on port number specified in `.CommPort` using protocol defined in `.CommProto`.
-Field `.CommProto` can be set either to `"tcp"` or `"udp"`.
-Commands that are sent to the port used for communication are executed in a blind manner - their output isn't saved anywhere.
-
-An optional preamble can be added before the command string.
-
-Format: `:<preamble_letters> <command>` 
-
-Example command with preamble might look like this: `:ar echo "pwned"`
-
-Following characters can be specified inside preamble:
-* `a`  - received command is forwarded to each infected node, but the node that first received the command will not execute it
-* `x`  - received command will be executed even if `a` is specified
-* `r`  - after receiving the command, binary removes itself from infected host and quits execution
-* `k`  - keep preamble when sending command to other nodes
-* `s`  - sleep random number of seconds between 1 and 5 before executing command
-* `q`  - after command is executed, the machine reboots
-* `o`  - command is sent to a single, random node. `a` must be specified
-* `v`  - output of executed command is sent to an address specified under `.ExfilAddr`
-* `m`  - mechanism that prevents re-execution of commands becomes disabled just for this specific command 
-* `l`  - command is executed in infinite loop
-* `e`  - command is executed only if the node has elevated privilleges
-* `p`  - command becomes persistent and is executed upon each startup
-* `d`  - output of executed command is printed to STDOUT for debugging purpose
-* `f`  - forkbomb is launched after command was executed
-* `!`  - if command was executed with errors and `a` is specified, this command is not forwarded
-
-By default, raw command sent without any preambles is executed by a single node that the command was addressed for.
-
-It is also important to note that when `k` is not present inside preamble, preamble is removed from command right after the first node receives it.
-
-#### Example 1 - preamble is not forwarded to other nodes:
-
-```go
- (1) [TCP_client]    ":ar whoami" -----> [InfectedHost1] 
- (2) [InfectedHost1] "whoami"     -----> [InfectedHostN]
- 
-    [InfectedHost1] removes itself after command was sent to all infected nodes in (2)
-     because "r" was specified in preamble. "x" was not specified, so "whoami" was not executed by [InfectedHost1] 
-```
-#### Example 2 - preamble is forwarded:
-
-```go
- (1) [TCP_client]    ":akxr whoami"  -----> [InfectedHost1] 
- (2) [InfectedHost1] ":akxr whoami"  -----> [InfectedHostN]
- (n) [InfectedHostN] ":axkr whoami"  -----> ...............
- .................................   -----> ...............
-
- Both [InfectedHost1] and [InfectedHostN] execute command and they try to send it to another nodes with preamble preserved
-```
-
 
 ### Reverse connections
 An interactive reverse shell can be established with `NeuraxReverse()`.

