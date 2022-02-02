@@ -320,7 +320,7 @@ func NeuraxServer() {
 	}
 	addr := fmt.Sprintf(":%d", N.Port)
 	go http.ListenAndServe(addr, http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		http.ServeContent(rw, r, N.FileName, time.Now(), bytes.NewReader(data))
+		go http.ServeContent(rw, r, N.FileName, time.Now(), bytes.NewReader(data))
 	}))
 }
 

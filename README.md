@@ -21,7 +21,7 @@
 I will come up with a decent alternative prior to next release.
 - `N.NoInfectCheck` to disable checking if host is already infected.
 - Single-execution policy on target machine, enforced with an exclusive file mutex placed inside `NeuraxServer()`.
-
+- Added a nested goroutine for serving the binary
 ## New in v. 2.0
 - New wordlist mutators + common passwords by country
 - Improvised passive scanning
