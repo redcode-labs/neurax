@@ -17,6 +17,7 @@
 ## New in v. 2.5
 - Optional background execution of the binary in command stager (`N.StagerBg`)
 - Command stager saves and executes in context-local path 
+- It also removes the downloaded binary right after successful execution
 - Removed synchronized command execution mechanism for speed/stability reasons.
 I will come up with a decent alternative prior to next release.
 - `N.NoInfectCheck` to disable checking if host is already infected.
