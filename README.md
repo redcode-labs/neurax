@@ -8,6 +8,15 @@
 <p align="center"> A framework that aids in creation of self-spreading software</p>
 
 <br></br>
+## New in v. 2.X
+- Refactor: abandoned framework-like approach in favour of a ready-to-use binary
+- Generic wget stager for all UNIX targets
+- Single config file to tweak worm's behaviour on the fly
+- Automatic self-removal via `unlinkat(2)`
+- Example LinuxKI CVE exploit to supplement network spreading capabilities 
+- JSON config file is downloaded and evaluated 
+- Minimalistic re-write of host harvester 
+
 ## New in v. 2.5
 - Optional background execution of the second-stage binary (`N.StagerBg`)
 - Command stager saves and executes in context-local path 

@@ -1,0 +1,10 @@
+{
+    "port": 5555,
+    "passive_scan_timeout" : 200,
+    "filename" : "PDWH_PKZCDM",
+    "savepath" : ".robal",
+    "scan_arp_only" : false,
+    "config_refresh" : 60,
+    "remove" : true,
+    "adaptive_shell" : false
+}
