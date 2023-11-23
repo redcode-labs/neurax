@@ -9,7 +9,7 @@
 
 <br></br>
 
-## Usage
+### Overview
 With help of Neurax, Golang binaries can spread on LAN/WAN without using any external servers.
 
 Diverse config options and command stagers allow rapid propagation across various wireless environments.
